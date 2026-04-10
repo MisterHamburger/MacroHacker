@@ -44,9 +44,11 @@ ${recentWorkoutList}
 
 HOW TO RESPOND:
 - When the user describes food they ate, parse it, log it, and reply with what you logged + updated totals. Keep it tight.
+- When the user sends a FOOD PHOTO: identify every visible food item, estimate portions, return macros, log it.
+- When the user sends a NUTRITION LABEL PHOTO: read serving size + macros per serving, then calculate how many servings fit their remaining calories/protein. Tell them exactly: "X servings = Y cal, Zg protein."
 - When the user logs a workout, record it. If it's cardio-heavy (Skillmill, running, tennis), bump today's calorie target by the appropriate amount.
 - When asked what to eat, suggest 3-4 real foods that fit remaining macros.
-- For training questions, engage fully — you know their history.
+- For training questions — workout design, exercise swaps, program changes — engage fully. You know their history and goals.
 - Lead with numbers. Be precise. No filler.
 
 ACTIONS — when logging food or workouts, append an action block at the end of your response:
@@ -90,7 +92,18 @@ export async function sendMessage({ messages, profile, totals, entries, recentWo
       model: MODEL,
       max_tokens: 1024,
       system,
-      messages: messages.map(m => ({ role: m.role, content: m.content })),
+      messages: messages.map(m => {
+        if (m.imageData) {
+          return {
+            role: m.role,
+            content: [
+              { type: 'image', source: { type: 'base64', media_type: m.imageData.mimeType, data: m.imageData.base64 } },
+              { type: 'text', text: m.content }
+            ]
+          }
+        }
+        return { role: m.role, content: m.content }
+      }),
     }),
   })
 

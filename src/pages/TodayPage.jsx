@@ -53,7 +53,10 @@ function Message({ msg }) {
     <div style={{ display: 'flex', flexDirection: 'column', alignItems: isUser ? 'flex-end' : 'flex-start', marginBottom: '16px', padding: '0 16px' }}>
       {isUser ? (
         <div style={{ background: 'var(--bg-elevated)', borderRadius: '12px 12px 2px 12px', padding: '10px 14px', maxWidth: '80%', fontSize: '14px', color: 'var(--text-primary)', lineHeight: '1.5' }}>
-          {msg.content}
+          {msg.imagePreview && (
+            <img src={msg.imagePreview} alt="food" style={{ width: '100%', maxWidth: '220px', borderRadius: '8px', display: 'block', marginBottom: msg.content ? '8px' : 0 }} />
+          )}
+          {msg.content && msg.content !== '[photo]' && msg.content}
         </div>
       ) : (
         <div style={{ maxWidth: '92%' }}>
@@ -154,6 +157,69 @@ export default function TodayPage() {
     }
   }, [input, sending, messages, profile, totals, entries, recentWorkouts, todayWorkout, log, user, refreshLog, refreshProfile])
 
+  async function handlePhoto(e) {
+    const file = e.target.files[0]
+    if (!file || sending) return
+    e.target.value = ''
+
+    const reader = new FileReader()
+    reader.onload = async (ev) => {
+      const dataUrl = ev.target.result
+      const base64 = dataUrl.split(',')[1]
+      const mimeType = file.type || 'image/jpeg'
+
+      const remaining = {
+        calories: (profile.daily_calories || 0) - totals.calories,
+        protein: (profile.daily_protein || 0) - totals.protein,
+        fat: (profile.daily_fat || 0) - totals.fat,
+        carbs: (profile.daily_carbs || 0) - totals.carbs,
+      }
+
+      const promptText = `Remaining today: ${remaining.calories} cal, ${remaining.protein}g protein, ${remaining.fat}g fat, ${remaining.carbs}g carbs.`
+
+      const photoMsg = {
+        role: 'user',
+        content: promptText,
+        imageData: { base64, mimeType },
+        imagePreview: dataUrl,
+        created_at: new Date().toISOString(),
+      }
+
+      setSending(true)
+      const optimisticMessages = [...messages, photoMsg]
+      setMessages(optimisticMessages)
+
+      try {
+        await saveChatMessage(user.id, TODAY, 'user', '[photo] ' + promptText)
+        const raw = await sendMessage({ messages: optimisticMessages, profile, totals, entries, recentWorkouts, todayWorkout })
+        const { cleanText, actions } = parseActions(raw)
+
+        for (const action of actions) {
+          if (action.type === 'log_food') {
+            const dailyLog = log || await getOrCreateDailyLog(user.id, TODAY)
+            await addFoodEntry(dailyLog.id, user.id, '[photo] ' + (action.raw || 'food photo'), action.items)
+            refreshLog()
+          }
+          if (action.type === 'log_workout') {
+            await saveWorkoutLog(user.id, TODAY, action.session_name, { type: action.workout_type, session_name: action.session_name, exercises: action.exercises })
+            setTodayWorkout({ raw_input: action.session_name, exercises: { type: action.workout_type } })
+            getRecentWorkouts(user.id).then(setRecentWorkouts)
+          }
+        }
+
+        const assistantMsg = { role: 'assistant', content: cleanText, actions, created_at: new Date().toISOString() }
+        setMessages(prev => [...prev, assistantMsg])
+        await saveChatMessage(user.id, TODAY, 'assistant', cleanText, actions.length ? actions : null)
+      } catch (err) {
+        console.error(err)
+        setMessages(prev => [...prev, { role: 'assistant', content: 'Could not analyze photo. Try again.', created_at: new Date().toISOString() }])
+      } finally {
+        setSending(false)
+      }
+    }
+    reader.readAsDataURL(file)
+  }
+
   function toggleVoice() {
     if (listening) { recognitionRef.current?.stop(); setListening(false); return }
     const SR = window.SpeechRecognition || window.webkitSpeechRecognition
@@ -209,7 +275,7 @@ export default function TodayPage() {
               {listening ? '⏹' : '🎤'}
             </button>
             <label style={{ cursor: 'pointer', padding: '4px', color: 'var(--text-muted)', fontSize: '16px', lineHeight: 1 }}>
-              📷<input type="file" accept="image/*" capture="environment" style={{ display: 'none' }} />
+              📷<input type="file" accept="image/*" capture="environment" onChange={handlePhoto} style={{ display: 'none' }} />
             </label>
             <button onClick={() => handleSend()} disabled={!input.trim() || sending}
               style={{ background: input.trim() && !sending ? 'var(--accent)' : 'var(--bg-card)', border: 'none', borderRadius: '8px', cursor: input.trim() && !sending ? 'pointer' : 'default', padding: '6px 14px', fontFamily: "'DM Mono',monospace", fontSize: '10px', letterSpacing: '0.1em', textTransform: 'uppercase', color: input.trim() && !sending ? 'var(--bg-base)' : 'var(--text-muted)', transition: 'background 150ms' }}>
