@@ -288,24 +288,34 @@ export async function sendMessage({ messages, profile, totals, entries, recentWo
       max_tokens: 1024,
       system,
       messages: (() => {
-        // Anthropic requires messages to start with role 'user' and alternate.
-        // The opening assistant message is context only — drop any leading assistant messages.
+        // Map to Anthropic format
         const mapped = messages.map(m => {
           if (m.imageData) {
             return {
               role: m.role,
               content: [
                 { type: 'image', source: { type: 'base64', media_type: m.imageData.mimeType, data: m.imageData.base64 } },
-                { type: 'text', text: m.content }
+                { type: 'text', text: m.content || '' }
               ]
             }
           }
           return { role: m.role, content: m.content || '' }
         })
-        // Drop leading assistant messages
+        // Drop leading assistant messages (daily opening)
         let start = 0
         while (start < mapped.length && mapped[start].role === 'assistant') start++
-        return mapped.slice(start)
+        const trimmed = mapped.slice(start)
+        // Merge consecutive same-role messages (happens when API errors left user msgs without replies)
+        const merged = []
+        for (const msg of trimmed) {
+          const prev = merged[merged.length - 1]
+          if (prev && prev.role === msg.role && typeof prev.content === 'string' && typeof msg.content === 'string') {
+            prev.content = prev.content + '\n' + msg.content
+          } else {
+            merged.push({ ...msg })
+          }
+        }
+        return merged
       })(),
     }),
   })
