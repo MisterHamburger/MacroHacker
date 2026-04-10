@@ -103,7 +103,7 @@ export default function TodayPage() {
   const { profile, refresh: refreshProfile } = useProfile()
   const { log, entries, totals, refresh: refreshLog } = useDailyLog(TODAY)
   const [messages, setMessages] = useState([])
-  const [input, setInput] = useState('')
+  const [input, setInput] = useState(() => localStorage.getItem('draft_input') || '')
   const [sending, setSending] = useState(false)
   const [recentWorkouts, setRecentWorkouts] = useState([])
   const [todayWorkout, setTodayWorkout] = useState(null)
@@ -166,6 +166,7 @@ export default function TodayPage() {
     const content = (text || input).trim()
     if (!content || sending) return
     setInput('')
+    localStorage.removeItem('draft_input')
     setSending(true)
     const userMsg = { role: 'user', content, created_at: new Date().toISOString() }
     const optimisticMessages = [...messages, userMsg]
@@ -311,7 +312,7 @@ export default function TodayPage() {
         <div style={{ background: 'var(--bg-elevated)', border: '1px solid var(--border)', borderRadius: '12px', padding: '10px 12px', display: 'flex', alignItems: 'flex-end', gap: '8px' }}>
           <textarea
             value={input}
-            onChange={e => setInput(e.target.value)}
+            onChange={e => { setInput(e.target.value); localStorage.setItem('draft_input', e.target.value) }}
             onKeyDown={handleKeyDown}
             placeholder="Log food, record a workout, ask anything..."
             rows={1}
