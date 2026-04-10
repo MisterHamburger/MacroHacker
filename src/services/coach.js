@@ -268,7 +268,11 @@ export function parseActions(text) {
       console.warn('Failed to parse action:', match[1])
     }
   }
-  const cleanText = text.replace(/<action>[\s\S]*?<\/action>/g, '').trim()
+  // Strip complete action tags, then strip any incomplete/truncated <action>... at the end
+  const cleanText = text
+    .replace(/<action>[\s\S]*?<\/action>/g, '')
+    .replace(/<action>[\s\S]*$/g, '')
+    .trim()
   return { cleanText, actions }
 }
 
@@ -285,7 +289,7 @@ export async function sendMessage({ messages, profile, totals, entries, recentWo
     },
     body: JSON.stringify({
       model: MODEL,
-      max_tokens: 1024,
+      max_tokens: 2048,
       system,
       messages: (() => {
         // Map to Anthropic format
