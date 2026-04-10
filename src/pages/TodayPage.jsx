@@ -288,6 +288,25 @@ export default function TodayPage() {
     if (e.key === 'Enter' && !e.shiftKey) { e.preventDefault(); handleSend() }
   }
 
+  const [dragOver, setDragOver] = useState(false)
+
+  function handleDrop(e) {
+    e.preventDefault()
+    setDragOver(false)
+    const file = e.dataTransfer.files?.[0]
+    if (!file || !file.type.startsWith('image/')) return
+    handlePhoto({ target: { files: [file], value: '' } })
+  }
+
+  function handlePaste(e) {
+    const item = Array.from(e.clipboardData?.items || []).find(i => i.type.startsWith('image/'))
+    if (!item) return
+    const file = item.getAsFile()
+    if (!file) return
+    e.preventDefault()
+    handlePhoto({ target: { files: [file], value: '' } })
+  }
+
   if (!profile) return null
 
   return (
@@ -309,11 +328,16 @@ export default function TodayPage() {
         <div ref={bottomRef} />
       </div>
       <div style={{ background: 'var(--bg-surface)', borderTop: '1px solid var(--border)', padding: '12px 16px', paddingBottom: 'calc(12px + env(safe-area-inset-bottom))', flexShrink: 0 }}>
-        <div style={{ background: 'var(--bg-elevated)', border: '1px solid var(--border)', borderRadius: '12px', padding: '10px 12px', display: 'flex', alignItems: 'flex-end', gap: '8px' }}>
+        <div
+          onDragOver={e => { e.preventDefault(); setDragOver(true) }}
+          onDragLeave={() => setDragOver(false)}
+          onDrop={handleDrop}
+          style={{ background: dragOver ? 'var(--accent-dim)' : 'var(--bg-elevated)', border: `1px solid ${dragOver ? 'var(--accent)' : 'var(--border)'}`, borderRadius: '12px', padding: '10px 12px', display: 'flex', alignItems: 'flex-end', gap: '8px', transition: 'background 150ms, border-color 150ms' }}>
           <textarea
             value={input}
             onChange={e => { setInput(e.target.value); localStorage.setItem('draft_input', e.target.value) }}
             onKeyDown={handleKeyDown}
+            onPaste={handlePaste}
             placeholder="Log food, record a workout, ask anything..."
             rows={1}
             style={{ flex: 1, background: 'none', border: 'none', outline: 'none', resize: 'none', fontSize: '14px', color: 'var(--text-primary)', fontFamily: "'DM Sans',sans-serif", lineHeight: '1.5', maxHeight: '120px', overflow: 'auto' }}
