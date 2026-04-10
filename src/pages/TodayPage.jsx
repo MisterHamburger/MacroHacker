@@ -46,6 +46,21 @@ function MacroBar({ totals, targets }) {
   )
 }
 
+function renderText(text) {
+  if (!text) return null
+  // Split on **bold** and render inline
+  const parts = text.split(/(\*\*[^*]+\*\*)/g)
+  return parts.map((part, i) => {
+    if (part.startsWith('**') && part.endsWith('**')) {
+      return <strong key={i} style={{ fontWeight: 600 }}>{part.slice(2, -2)}</strong>
+    }
+    // Render newlines as line breaks
+    return part.split('\n').map((line, j, arr) => (
+      <span key={`${i}-${j}`}>{line}{j < arr.length - 1 && <br />}</span>
+    ))
+  })
+}
+
 function Message({ msg }) {
   const isUser = msg.role === 'user'
   const time = new Date(msg.created_at || Date.now()).toLocaleTimeString('en-US', { hour: 'numeric', minute: '2-digit' })
@@ -71,8 +86,8 @@ function Message({ msg }) {
               ))}
             </div>
           )}
-          <div style={{ fontSize: '14px', color: 'var(--text-primary)', lineHeight: '1.6', whiteSpace: 'pre-wrap' }}>
-            {msg.content}
+          <div style={{ fontSize: '14px', color: 'var(--text-primary)', lineHeight: '1.6' }}>
+            {renderText(msg.content)}
           </div>
         </div>
       )}
@@ -275,7 +290,7 @@ export default function TodayPage() {
   if (!profile) return null
 
   return (
-    <div style={{ display: 'flex', flexDirection: 'column', height: '100dvh', background: 'var(--bg-base)' }}>
+    <div style={{ display: 'flex', flexDirection: 'column', height: 'calc(100dvh - 64px)', background: 'var(--bg-base)' }}>
       <MacroBar totals={totals} targets={targets} />
       <div style={{ flex: 1, overflowY: 'auto', paddingTop: '16px', paddingBottom: '8px' }}>
         <div style={{ textAlign: 'center', fontFamily: "'DM Mono',monospace", fontSize: '9px', letterSpacing: '0.15em', textTransform: 'uppercase', color: 'var(--text-muted)', marginBottom: '20px' }}>
