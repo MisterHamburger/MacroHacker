@@ -80,3 +80,64 @@ export async function getDailyLogs(userId, limit = 30) {
   if (error) throw error
   return data || []
 }
+
+export async function getChatMessages(userId, date) {
+  const dateStr = date || new Date().toISOString().split('T')[0]
+  const { data, error } = await supabase
+    .from('chat_messages')
+    .select('*')
+    .eq('user_id', userId)
+    .eq('date', dateStr)
+    .order('created_at', { ascending: true })
+  if (error) throw error
+  return data || []
+}
+
+export async function saveChatMessage(userId, date, role, content, actions = null) {
+  const dateStr = date || new Date().toISOString().split('T')[0]
+  const { data, error } = await supabase
+    .from('chat_messages')
+    .insert({ user_id: userId, date: dateStr, role, content, actions })
+    .select()
+    .single()
+  if (error) throw error
+  return data
+}
+
+export async function saveWorkoutLog(userId, date, sessionName, workoutData) {
+  const dateStr = date || new Date().toISOString().split('T')[0]
+  const { data, error } = await supabase
+    .from('workout_logs')
+    .upsert({
+      user_id: userId,
+      date: dateStr,
+      raw_input: sessionName,
+      exercises: workoutData,
+    }, { onConflict: 'user_id,date' })
+    .select()
+    .single()
+  if (error) throw error
+  return data
+}
+
+export async function getRecentWorkouts(userId, limit = 7) {
+  const { data, error } = await supabase
+    .from('workout_logs')
+    .select('*')
+    .eq('user_id', userId)
+    .order('date', { ascending: false })
+    .limit(limit)
+  if (error) throw error
+  return data || []
+}
+
+export async function getTodayWorkout(userId, date) {
+  const dateStr = date || new Date().toISOString().split('T')[0]
+  const { data } = await supabase
+    .from('workout_logs')
+    .select('*')
+    .eq('user_id', userId)
+    .eq('date', dateStr)
+    .single()
+  return data || null
+}
