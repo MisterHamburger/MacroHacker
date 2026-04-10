@@ -62,6 +62,76 @@ For target update: <action>{"type":"update_targets","daily_calories":0,"daily_pr
 Only include action blocks when actually logging something. Never include them in conversational replies.`
 }
 
+function buildWelcomeSystemPrompt({ profile }) {
+  const heightFt = profile.height_inches
+    ? `${Math.floor(profile.height_inches / 12)}'${profile.height_inches % 12}"`
+    : 'unknown'
+  const weightKg = profile.weight_lbs * 0.453592
+  const heightCm = profile.height_inches * 2.54
+  const bmr = profile.sex === 'male'
+    ? 10 * weightKg + 6.25 * heightCm - 5 * profile.age + 5
+    : 10 * weightKg + 6.25 * heightCm - 5 * profile.age - 161
+  const multipliers = { sedentary: 1.2, light: 1.375, moderate: 1.55, active: 1.725, very_active: 1.9 }
+  const tdee = Math.round(bmr * (multipliers[profile.activity_level] || 1.55))
+  const protein = Math.round(profile.weight_lbs)
+
+  const cutCal = tdee - 500
+  const recompCal = tdee
+  const bulkCal = tdee + 300
+
+  return `You are the Macro Hacker coach. ${profile.name} just finished setup. This is your first message to them.
+
+USER STATS:
+- Name: ${profile.name}
+- ${profile.age}yo ${profile.sex}, ${heightFt}, ${profile.weight_lbs} lbs
+- Activity: ${profile.activity_level}
+- Maintenance calories (TDEE): ~${tdee} cal/day
+
+YOUR JOB:
+1. One-line welcome (use their name, be direct)
+2. Ask what their goal is — use plain language: lose fat, build muscle, stay lean/recomp
+
+When they tell you their goal, respond with their exact daily targets and fire the action.
+
+TARGET FORMULAS:
+- Fat loss: ${cutCal} cal / ${protein}g protein / ${Math.round((cutCal * 0.25) / 9)}g fat / ${Math.round((cutCal - protein * 4 - Math.round((cutCal * 0.25) / 9) * 9) / 4)}g carbs → goal: "cut"
+- Maintain/recomp: ${recompCal} cal / ${protein}g protein / ${Math.round((recompCal * 0.30) / 9)}g fat / ${Math.round((recompCal - protein * 4 - Math.round((recompCal * 0.30) / 9) * 9) / 4)}g carbs → goal: "recomp"
+- Muscle gain: ${bulkCal} cal / ${protein}g protein / ${Math.round((bulkCal * 0.25) / 9)}g fat / ${Math.round((bulkCal - protein * 4 - Math.round((bulkCal * 0.25) / 9) * 9) / 4)}g carbs → goal: "bulk"
+
+After they describe their goal, confirm the numbers in one line then end with:
+<action>{"type":"update_targets","goal":"cut|recomp|bulk","daily_calories":0,"daily_protein":0,"daily_fat":0,"daily_carbs":0}</action>
+
+Keep everything short. No filler. Max 3-4 sentences per reply.`
+}
+
+export async function sendWelcomeMessage({ messages, profile }) {
+  const system = buildWelcomeSystemPrompt({ profile })
+
+  const res = await fetch(API_URL, {
+    method: 'POST',
+    headers: {
+      'Content-Type': 'application/json',
+      'x-api-key': API_KEY,
+      'anthropic-version': '2023-06-01',
+      'anthropic-dangerous-direct-browser-access': 'true',
+    },
+    body: JSON.stringify({
+      model: MODEL,
+      max_tokens: 512,
+      system,
+      messages: messages.map(m => ({ role: m.role, content: m.content })),
+    }),
+  })
+
+  if (!res.ok) {
+    const err = await res.text()
+    throw new Error(`Welcome error: ${res.status} ${err}`)
+  }
+
+  const data = await res.json()
+  return data.content[0].text
+}
+
 export async function generateDailyOpening({ profile, totals, entries, recentWorkouts, todayWorkout }) {
   const system = buildSystemPrompt({ profile, totals, entries, recentWorkouts, todayWorkout })
   const trigger = `Good morning. Give me my daily briefing — today's date, what workout you'd expect based on my recent pattern, today's calorie target, and a one-line prompt to get started. Keep it under 4 lines. No fluff.`

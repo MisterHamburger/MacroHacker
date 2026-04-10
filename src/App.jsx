@@ -1,9 +1,10 @@
 import { Routes, Route } from 'react-router-dom'
 import { useAuth } from './hooks/useAuth'
 import { useProfile } from './hooks/useProfile'
-import { isProfileComplete } from './services/profile'
+import { isBasicProfileComplete, isProfileComplete } from './services/profile'
 import AuthPage from './pages/AuthPage'
 import OnboardingPage from './pages/OnboardingPage'
+import WelcomeChatPage from './pages/WelcomeChatPage'
 import TodayPage from './pages/TodayPage'
 import HistoryPage from './pages/HistoryPage'
 import SettingsPage from './pages/SettingsPage'
@@ -27,8 +28,12 @@ export default function App() {
     return <AuthPage />
   }
 
-  if (!isProfileComplete(profile)) {
+  if (!isBasicProfileComplete(profile)) {
     return <OnboardingPage onComplete={refresh} />
+  }
+
+  if (!isProfileComplete(profile)) {
+    return <WelcomeChatPage onComplete={refresh} />
   }
 
   return (

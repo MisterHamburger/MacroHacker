@@ -1,9 +1,8 @@
 import { useState } from 'react'
 import { useAuth } from '../hooks/useAuth'
 import { updateProfile } from '../services/profile'
-import { calculateTargets } from '../services/macros'
 
-const STEPS = ['name', 'age_sex', 'height_weight', 'activity', 'goal', 'confirm']
+const STEPS = ['name', 'age_sex', 'height_weight', 'activity']
 
 export default function OnboardingPage({ onComplete }) {
   const { user } = useAuth()
@@ -17,24 +16,12 @@ export default function OnboardingPage({ onComplete }) {
     height_inches: '',
     weight_lbs: '',
     activity_level: 'moderate',
-    goal: 'recomp',
   })
 
   const totalInches = (parseInt(form.height_feet) || 0) * 12 + (parseInt(form.height_inches) || 0)
 
-  const targets = form.age && form.weight_lbs && totalInches > 0
-    ? calculateTargets({
-        sex: form.sex,
-        age: parseInt(form.age),
-        height_inches: totalInches,
-        weight_lbs: parseFloat(form.weight_lbs),
-        activity_level: form.activity_level,
-        goal: form.goal,
-      })
-    : null
-
   async function handleFinish() {
-    if (!targets || !user) return
+    if (!user) return
     setLoading(true)
     try {
       await updateProfile(user.id, {
@@ -44,8 +31,6 @@ export default function OnboardingPage({ onComplete }) {
         height_inches: totalInches,
         weight_lbs: parseFloat(form.weight_lbs),
         activity_level: form.activity_level,
-        goal: form.goal,
-        ...targets,
       })
       onComplete?.()
     } catch (err) {
@@ -197,58 +182,6 @@ export default function OnboardingPage({ onComplete }) {
           </div>
         )}
 
-        {STEPS[step] === 'goal' && (
-          <div>
-            <h2 className="font-bebas text-3xl mb-2" style={{ color: 'var(--text-primary)' }}>Goal</h2>
-            <div className="flex flex-col gap-2 mt-4">
-              {[
-                { value: 'cut', label: 'Cut', desc: 'Lose fat' },
-                { value: 'recomp', label: 'Recomp', desc: 'Maintain weight' },
-                { value: 'bulk', label: 'Bulk', desc: 'Build muscle' },
-              ].map(({ value, label, desc }) => (
-                <button
-                  key={value}
-                  onClick={() => setForm({ ...form, goal: value })}
-                  className="flex justify-between items-center px-4 py-3 font-mono text-xs uppercase tracking-widest"
-                  style={form.goal === value ? activeChip : inactiveChip}
-                >
-                  <span>{label}</span>
-                  <span className="text-[10px] normal-case" style={{ opacity: 0.6, letterSpacing: '0' }}>{desc}</span>
-                </button>
-              ))}
-            </div>
-          </div>
-        )}
-
-        {STEPS[step] === 'confirm' && targets && (
-          <div>
-            <h2 className="font-bebas text-3xl mb-2" style={{ color: 'var(--text-primary)' }}>Your Daily Targets</h2>
-            <p className="text-xs mb-6" style={{ color: 'var(--text-secondary)' }}>
-              Based on your info, here are your daily targets:
-            </p>
-            <div className="grid grid-cols-2 gap-4">
-              {[
-                { label: 'Calories', value: targets.daily_calories, unit: 'kcal' },
-                { label: 'Protein', value: targets.daily_protein, unit: 'g' },
-                { label: 'Fat', value: targets.daily_fat, unit: 'g' },
-                { label: 'Carbs', value: targets.daily_carbs, unit: 'g' },
-              ].map(({ label, value, unit }) => (
-                <div
-                  key={label}
-                  className="p-4 rounded-md text-center"
-                  style={{ background: 'var(--bg-card)', borderRadius: 'var(--r-md)' }}
-                >
-                  <div className="font-bebas text-3xl" style={{ color: label === 'Calories' ? 'var(--accent)' : 'var(--text-primary)' }}>
-                    {value}
-                  </div>
-                  <div className="font-mono text-[9px] uppercase tracking-widest mt-1" style={{ color: 'var(--text-muted)' }}>
-                    {label} ({unit})
-                  </div>
-                </div>
-              ))}
-            </div>
-          </div>
-        )}
       </div>
 
       {/* Navigation */}
@@ -273,11 +206,11 @@ export default function OnboardingPage({ onComplete }) {
         ) : (
           <button
             onClick={handleFinish}
-            disabled={loading}
+            disabled={loading || !form.name || !form.age || !totalInches || !form.weight_lbs}
             className="flex-1 py-3 rounded-md font-mono text-xs uppercase tracking-widest"
-            style={{ background: 'var(--accent)', color: 'var(--bg-base)', border: 'none', cursor: 'pointer', borderRadius: 'var(--r-sm)', opacity: loading ? 0.5 : 1 }}
+            style={{ background: 'var(--accent)', color: 'var(--bg-base)', border: 'none', cursor: 'pointer', borderRadius: 'var(--r-sm)', opacity: (loading || !form.name || !form.age || !totalInches || !form.weight_lbs) ? 0.5 : 1 }}
           >
-            {loading ? 'Saving...' : "Let's Go"}
+            {loading ? 'Saving...' : 'Continue'}
           </button>
         )}
       </div>

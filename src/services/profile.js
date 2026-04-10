@@ -21,7 +21,7 @@ export async function updateProfile(userId, updates) {
   return data
 }
 
-export function isProfileComplete(profile) {
+export function isBasicProfileComplete(profile) {
   return !!(
     profile &&
     profile.name &&
@@ -29,8 +29,10 @@ export function isProfileComplete(profile) {
     profile.sex &&
     profile.height_inches &&
     profile.weight_lbs &&
-    profile.activity_level &&
-    profile.goal &&
-    profile.daily_calories
+    profile.activity_level
   )
+}
+
+export function isProfileComplete(profile) {
+  return !!(isBasicProfileComplete(profile) && profile.daily_calories)
 }
