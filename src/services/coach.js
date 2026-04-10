@@ -8,6 +8,92 @@ function todayStr() {
   })
 }
 
+function getTodayDayName() {
+  return new Date().toLocaleDateString('en-US', { weekday: 'long' }).toLowerCase()
+}
+
+function formatWorkoutSection(schedule) {
+  if (!schedule) return null
+
+  const dayName = getTodayDayName()
+  const workoutKey = schedule.schedule?.[dayName]
+  const todayWorkoutPlan = workoutKey ? schedule.workouts?.[workoutKey] : null
+  const mt = schedule.macro_targets || {}
+
+  // Format today's scheduled workout in full
+  let todaySection = ''
+  if (todayWorkoutPlan) {
+    const w = todayWorkoutPlan
+    const target = mt[w.day_type] || mt.lift
+    todaySection = `SCHEDULED TODAY (${dayName.toUpperCase()}): ${w.label}
+Duration: ~${w.duration_min} min | Macro target: ${target.calories} cal / ${target.protein}g P / ${target.fat}g F / ${target.carbs}g C
+Warm-up: ${w.warmup || 'N/A'}
+`
+    if (w.exercises?.length) {
+      if (w.complex_note) {
+        todaySection += `\nKB COMPLEX — ${w.complex_rounds} rounds at 20kg. ${w.complex_note}\n`
+        todaySection += w.exercises.map(e => `  ${e.name}: ${e.reps} — ${e.notes || ''}`).join('\n')
+        if (w.finisher) {
+          todaySection += `\n\nFINISHER — ${w.finisher.name}:\n`
+          todaySection += w.finisher.exercises.map(e => `  ${e.name}: ${e.reps} — ${e.notes || ''}`).join('\n')
+        }
+      } else {
+        todaySection += '\nExercise | Sets | Reps | Rest | Weight\n'
+        todaySection += w.exercises.map(e =>
+          `  ${e.name} | ${e.sets || '-'} | ${e.reps} | ${e.rest || '-'} | ${e.weight || '-'}`
+        ).join('\n')
+      }
+    } else if (w.protocol) {
+      todaySection += `\nProtocol: ${w.protocol}`
+      if (w.benchmarks) {
+        const b = w.benchmarks
+        todaySection += `\nBenchmarks: ${b.avg_hr_bpm} bpm avg, ${b.max_hr_bpm} bpm max, ${b.calories} cal, ${b.distance_km} km (${b.date})`
+      }
+    }
+  } else {
+    todaySection = `SCHEDULED TODAY (${dayName.toUpperCase()}): Flex day — tennis, run, or rest`
+  }
+
+  // Weekly overview (brief)
+  const weekOverview = Object.entries(schedule.schedule || {}).map(([day, key]) => {
+    const w = schedule.workouts?.[key]
+    const t = w ? mt[w.day_type] : mt.rest
+    const name = w ? w.label.split('—')[1]?.trim() || w.label : 'Flex'
+    return `${day.toUpperCase()}: ${name} → ${t?.calories || 1950} cal`
+  }).join('\n')
+
+  // Per-day macro targets
+  const macroSummary = Object.values(mt).map(t => `- ${t.label}: ${t.calories} cal / ${t.protein}g P / ${t.fat}g F / ${t.carbs}g C`).join('\n')
+
+  return `${todaySection}
+
+WEEKLY PROGRAM OVERVIEW:
+${weekOverview}
+
+MACRO TARGETS BY DAY TYPE:
+${macroSummary}
+Non-negotiable: 185g protein minimum daily
+Pre-workout carbs on lift days (banana or rice cakes 30–45 min before)
+Post-workout protein: 40–50g within 60 min after each lift
+
+SUPPLEMENTS: ${(schedule.supplements || []).join(' | ')}
+
+FULL PROGRAM — when asked for any day's workout, show the full table:
+${Object.values(schedule.workouts || {}).map(w => {
+  if (w.exercises?.length && !w.complex_note) {
+    return `\n${w.label}:\n` + w.exercises.map(e =>
+      `  ${e.name} | ${e.sets || '-'}x${e.reps} | rest ${e.rest || '-'} | ${e.weight || '-'}`
+    ).join('\n')
+  } else if (w.exercises?.length && w.complex_note) {
+    return `\n${w.label} — ${w.complex_rounds} rounds at 20kg:\n` +
+      w.exercises.map(e => `  ${e.name}: ${e.reps}`).join('\n') +
+      (w.finisher ? `\n  Finisher: ${w.finisher.exercises.map(e => `${e.name} ${e.reps}`).join(', ')}` : '')
+  } else {
+    return `\n${w.label}:\n  ${w.protocol}`
+  }
+}).join('\n')}`
+}
+
 function buildSystemPrompt({ profile, totals, entries, recentWorkouts, todayWorkout }) {
   const heightFt = profile.height_inches ? `${Math.floor(profile.height_inches / 12)}'${profile.height_inches % 12}"` : 'unknown'
   const recentWorkoutList = recentWorkouts?.slice(0, 5).map(w => {
@@ -19,6 +105,20 @@ function buildSystemPrompt({ profile, totals, entries, recentWorkouts, todayWork
     `- ${e.raw_input || 'food entry'}: ${e.total_calories} cal, ${e.total_protein}g pro, ${e.total_fat}g fat, ${e.total_carbs}g carbs`
   ).join('\n') || 'Nothing logged yet'
 
+  // Get today's scheduled macro target if program exists
+  const sched = profile.workout_schedule
+  const dayName = getTodayDayName()
+  const workoutKey = sched?.schedule?.[dayName]
+  const todayPlan = workoutKey ? sched?.workouts?.[workoutKey] : null
+  const dayType = todayPlan?.day_type || 'lift'
+  const scheduledTargets = sched?.macro_targets?.[dayType] || null
+  const calTarget = scheduledTargets?.calories || profile.daily_calories
+  const proTarget = scheduledTargets?.protein || profile.daily_protein
+  const fatTarget = scheduledTargets?.fat || profile.daily_fat
+  const carbTarget = scheduledTargets?.carbs || profile.daily_carbs
+
+  const workoutSection = sched ? formatWorkoutSection(sched) : null
+
   return `You are the Macro Hacker coach — a precise, no-bullshit fitness and nutrition AI. You know this user's complete context. Be direct, data-forward, and conversational. No fluff.
 
 TODAY: ${todayStr()}
@@ -26,14 +126,15 @@ TODAY: ${todayStr()}
 USER PROFILE:
 - Name: ${profile.name || 'User'}
 - Stats: ${profile.age}yo ${profile.sex}, ${heightFt}, ${profile.weight_lbs} lbs
-- Goal: ${profile.goal}
-- Base daily targets: ${profile.daily_calories} cal / ${profile.daily_protein}g protein / ${profile.daily_fat}g fat / ${profile.daily_carbs}g carbs
+- Goal: ${profile.goal || 'recomp'}
+
+TODAY'S TARGETS (${dayType} day): ${calTarget} cal / ${proTarget}g protein / ${fatTarget}g fat / ${carbTarget}g carbs
 
 TODAY'S NUTRITION:
-- Calories: ${totals.calories} / ${profile.daily_calories} (${profile.daily_calories - totals.calories} remaining)
-- Protein: ${totals.protein}g / ${profile.daily_protein}g
-- Fat: ${totals.fat}g / ${profile.daily_fat}g
-- Carbs: ${totals.carbs}g / ${profile.daily_carbs}g
+- Calories: ${totals.calories} / ${calTarget} (${calTarget - totals.calories} remaining)
+- Protein: ${totals.protein}g / ${proTarget}g
+- Fat: ${totals.fat}g / ${fatTarget}g
+- Carbs: ${totals.carbs}g / ${carbTarget}g
 Foods logged today:
 ${foodList}
 
@@ -41,14 +142,14 @@ TODAY'S WORKOUT: ${todayWorkout ? `${todayWorkout.raw_input} (${todayWorkout.exe
 
 RECENT WORKOUTS:
 ${recentWorkoutList}
-
+${workoutSection ? `\n${workoutSection}` : ''}
 HOW TO RESPOND:
-- When the user describes food they ate, parse it, log it, and reply with what you logged + updated totals. Keep it tight.
+- When asked for today's workout or any day's workout — show the full exercise table exactly as programmed.
+- When the user describes food they ate, parse it, log it, reply with what you logged + updated totals. Keep it tight.
 - When the user sends a FOOD PHOTO: identify every visible food item, estimate portions, return macros, log it.
-- When the user sends a NUTRITION LABEL PHOTO: read serving size + macros per serving, then calculate how many servings fit their remaining calories/protein. Tell them exactly: "X servings = Y cal, Zg protein."
-- When the user logs a workout, record it. If it's cardio-heavy (Skillmill, running, tennis), bump today's calorie target by the appropriate amount.
+- When the user sends a NUTRITION LABEL PHOTO: read serving size + macros per serving, calculate how many servings fit remaining calories/protein. Tell them exactly: "X servings = Y cal, Zg protein."
+- When the user logs a workout, record it.
 - When asked what to eat, suggest 3-4 real foods that fit remaining macros.
-- For training questions — workout design, exercise swaps, program changes — engage fully. You know their history and goals.
 - Lead with numbers. Be precise. No filler.
 
 ACTIONS — when logging food or workouts, append an action block at the end of your response:

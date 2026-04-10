@@ -96,12 +96,24 @@ export default function TodayPage() {
   const bottomRef = useRef(null)
   const recognitionRef = useRef(null)
 
-  const targets = profile ? {
-    daily_calories: profile.daily_calories || 2000,
-    daily_protein: profile.daily_protein || 150,
-    daily_fat: profile.daily_fat || 65,
-    daily_carbs: profile.daily_carbs || 200,
-  } : { daily_calories: 2000, daily_protein: 150, daily_fat: 65, daily_carbs: 200 }
+  const targets = (() => {
+    if (!profile) return { daily_calories: 2000, daily_protein: 150, daily_fat: 65, daily_carbs: 200 }
+    const sched = profile.workout_schedule
+    if (sched) {
+      const dayName = new Date().toLocaleDateString('en-US', { weekday: 'long' }).toLowerCase()
+      const workoutKey = sched.schedule?.[dayName]
+      const todayPlan = workoutKey ? sched.workouts?.[workoutKey] : null
+      const dayType = todayPlan?.day_type || 'rest'
+      const t = sched.macro_targets?.[dayType]
+      if (t) return { daily_calories: t.calories, daily_protein: t.protein, daily_fat: t.fat, daily_carbs: t.carbs }
+    }
+    return {
+      daily_calories: profile.daily_calories || 2000,
+      daily_protein: profile.daily_protein || 150,
+      daily_fat: profile.daily_fat || 65,
+      daily_carbs: profile.daily_carbs || 200,
+    }
+  })()
 
   const openingFiredRef = useRef(false)
 
