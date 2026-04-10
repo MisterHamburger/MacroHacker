@@ -81,6 +81,32 @@ export async function getDailyLogs(userId, limit = 30) {
   return data || []
 }
 
+export async function getHistoryDays(userId, limit = 60) {
+  const [logsRes, workoutsRes] = await Promise.all([
+    supabase.from('daily_logs').select('*, food_entries(*)').eq('user_id', userId).order('date', { ascending: false }).limit(limit),
+    supabase.from('workout_logs').select('*').eq('user_id', userId).order('date', { ascending: false }).limit(limit),
+  ])
+  if (logsRes.error) throw logsRes.error
+
+  const workoutsByDate = {}
+  for (const w of workoutsRes.data || []) workoutsByDate[w.date] = w
+
+  // Merge: all dates that have food OR workout data
+  const allDates = new Set([
+    ...(logsRes.data || []).map(l => l.date),
+    ...Object.keys(workoutsByDate),
+  ])
+
+  return Array.from(allDates).sort((a, b) => b.localeCompare(a)).slice(0, limit).map(date => {
+    const log = logsRes.data?.find(l => l.date === date)
+    return {
+      date,
+      food_entries: log?.food_entries || [],
+      workout: workoutsByDate[date] || null,
+    }
+  })
+}
+
 export async function getChatMessages(userId, date) {
   const dateStr = date || new Date().toISOString().split('T')[0]
   const { data, error } = await supabase
