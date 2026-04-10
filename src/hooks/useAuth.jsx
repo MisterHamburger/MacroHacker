@@ -8,8 +8,14 @@ export function AuthProvider({ children }) {
   const [loading, setLoading] = useState(true)
 
   useEffect(() => {
+    const timeout = setTimeout(() => setLoading(false), 5000)
+
     supabase.auth.getSession().then(({ data: { session } }) => {
+      clearTimeout(timeout)
       setSession(session)
+      setLoading(false)
+    }).catch(() => {
+      clearTimeout(timeout)
       setLoading(false)
     })
 
