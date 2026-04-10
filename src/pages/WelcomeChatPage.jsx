@@ -4,18 +4,21 @@ import { useProfile } from '../hooks/useProfile'
 import { sendWelcomeMessage, parseActions } from '../services/coach'
 import { updateProfile } from '../services/profile'
 
+const DIN = "'D-DIN', Arial, Verdana, sans-serif"
+const DIN_BOLD = "'D-DIN-Bold', 'D-DIN', Arial, Verdana, sans-serif"
+
 function Message({ msg }) {
   const isUser = msg.role === 'user'
   return (
-    <div style={{ display: 'flex', flexDirection: 'column', alignItems: isUser ? 'flex-end' : 'flex-start', marginBottom: '16px', padding: '0 16px' }}>
+    <div style={{ display: 'flex', flexDirection: 'column', alignItems: isUser ? 'flex-end' : 'flex-start', marginBottom: '20px', padding: '0 16px' }}>
       {isUser ? (
-        <div style={{ background: 'var(--bg-elevated)', borderRadius: '12px 12px 2px 12px', padding: '10px 14px', maxWidth: '80%', fontSize: '14px', color: 'var(--text-primary)', lineHeight: '1.5' }}>
+        <div style={{ background: 'var(--ghost-bg)', border: '1px solid var(--ghost-border)', borderRadius: '4px 4px 0 4px', padding: '10px 14px', maxWidth: '82%', fontSize: '13px', fontFamily: DIN, color: 'var(--text-primary)', lineHeight: '1.6', textTransform: 'none', letterSpacing: '0.02em' }}>
           {msg.content}
         </div>
       ) : (
-        <div style={{ maxWidth: '92%' }}>
+        <div style={{ maxWidth: '94%' }}>
           {msg.actions?.length > 0 && (
-            <div style={{ borderLeft: '2px solid var(--accent)', paddingLeft: '10px', marginBottom: '8px', fontFamily: "'DM Mono',monospace", fontSize: '9px', letterSpacing: '0.1em', textTransform: 'uppercase', color: 'var(--accent)' }}>
+            <div style={{ borderLeft: '1px solid var(--ghost-border)', paddingLeft: '10px', marginBottom: '10px', fontFamily: DIN, fontSize: '9px', letterSpacing: '1.17px', textTransform: 'uppercase', color: 'var(--text-secondary)' }}>
               {msg.actions.map((a, i) => (
                 <div key={i}>
                   {a.type === 'update_targets' && `✓ Targets set · ${a.daily_calories} cal / ${a.daily_protein}g protein`}
@@ -23,7 +26,7 @@ function Message({ msg }) {
               ))}
             </div>
           )}
-          <div style={{ fontSize: '14px', color: 'var(--text-primary)', lineHeight: '1.6', whiteSpace: 'pre-wrap' }}>
+          <div style={{ fontSize: '13px', fontFamily: DIN, color: 'var(--text-primary)', lineHeight: '1.65', whiteSpace: 'pre-wrap', textTransform: 'none', letterSpacing: '0.02em' }}>
             {msg.content}
           </div>
         </div>
@@ -109,10 +112,10 @@ export default function WelcomeChatPage({ onComplete }) {
     <div style={{ display: 'flex', flexDirection: 'column', height: '100dvh', background: 'var(--bg-base)' }}>
       {/* Header */}
       <div style={{ padding: '24px 16px 16px', borderBottom: '1px solid var(--border)', flexShrink: 0 }}>
-        <div style={{ fontFamily: "'Bebas Neue',sans-serif", fontSize: '28px', color: 'var(--accent)', letterSpacing: '0.05em', lineHeight: 1 }}>
-          MACRO HACKER
+        <div style={{ fontFamily: DIN_BOLD, fontWeight: 700, fontSize: '26px', letterSpacing: '0.96px', textTransform: 'uppercase', color: 'var(--text-primary)', lineHeight: 1 }}>
+          Macro Hacker
         </div>
-        <div style={{ fontFamily: "'DM Mono',monospace", fontSize: '9px', letterSpacing: '0.15em', textTransform: 'uppercase', color: 'var(--text-muted)', marginTop: '4px' }}>
+        <div style={{ fontFamily: DIN, fontSize: '8px', letterSpacing: '1.17px', textTransform: 'uppercase', color: 'var(--text-muted)', marginTop: '6px' }}>
           Setup · Goal
         </div>
       </div>
@@ -120,11 +123,11 @@ export default function WelcomeChatPage({ onComplete }) {
       {/* Chat */}
       <div style={{ flex: 1, overflowY: 'auto', paddingTop: '20px', paddingBottom: '8px' }}>
         {sending && messages.length === 0 && (
-          <div style={{ padding: '0 16px', fontFamily: "'DM Mono',monospace", fontSize: '10px', letterSpacing: '0.1em', color: 'var(--text-muted)' }}>···</div>
+          <div style={{ padding: '0 16px', fontFamily: DIN, fontSize: '10px', letterSpacing: '0.3em', color: 'var(--text-muted)' }}>···</div>
         )}
         {messages.map((msg, i) => <Message key={i} msg={msg} />)}
         {sending && messages.length > 0 && (
-          <div style={{ padding: '0 16px 16px', fontFamily: "'DM Mono',monospace", fontSize: '10px', letterSpacing: '0.1em', color: 'var(--text-muted)' }}>···</div>
+          <div style={{ padding: '0 16px 16px', fontFamily: DIN, fontSize: '10px', letterSpacing: '0.3em', color: 'var(--text-muted)' }}>···</div>
         )}
         <div ref={bottomRef} />
       </div>
@@ -134,12 +137,12 @@ export default function WelcomeChatPage({ onComplete }) {
         {targetsSet ? (
           <button
             onClick={onComplete}
-            style={{ width: '100%', padding: '14px', background: 'var(--accent)', color: 'var(--bg-base)', border: 'none', borderRadius: 'var(--r-sm)', fontFamily: "'DM Mono',monospace", fontSize: '11px', letterSpacing: '0.12em', textTransform: 'uppercase', cursor: 'pointer' }}
+            style={{ width: '100%', padding: '14px', background: 'var(--text-primary)', color: '#000000', border: '1px solid var(--text-primary)', borderRadius: '32px', fontFamily: DIN_BOLD, fontWeight: 700, fontSize: '11px', letterSpacing: '1.17px', textTransform: 'uppercase', cursor: 'pointer' }}
           >
             Start Tracking →
           </button>
         ) : (
-          <div style={{ background: 'var(--bg-elevated)', border: '1px solid var(--border)', borderRadius: '12px', padding: '10px 12px', display: 'flex', alignItems: 'flex-end', gap: '8px' }}>
+          <div style={{ background: 'var(--ghost-bg)', border: '1px solid rgba(240,240,250,0.15)', borderRadius: '4px', padding: '10px 12px', display: 'flex', alignItems: 'flex-end', gap: '8px' }}>
             <textarea
               value={input}
               onChange={e => setInput(e.target.value)}
@@ -147,13 +150,27 @@ export default function WelcomeChatPage({ onComplete }) {
               placeholder="Tell me your goal..."
               rows={1}
               autoFocus
-              style={{ flex: 1, background: 'none', border: 'none', outline: 'none', resize: 'none', fontSize: '14px', color: 'var(--text-primary)', fontFamily: "'DM Sans',sans-serif", lineHeight: '1.5', maxHeight: '120px', overflow: 'auto' }}
+              style={{ flex: 1, background: 'none', border: 'none', outline: 'none', resize: 'none', fontSize: '13px', color: 'var(--text-primary)', fontFamily: DIN, lineHeight: '1.5', maxHeight: '120px', overflow: 'auto', textTransform: 'none', letterSpacing: '0.02em' }}
               onInput={e => { e.target.style.height = 'auto'; e.target.style.height = Math.min(e.target.scrollHeight, 120) + 'px' }}
             />
             <button
               onClick={handleSend}
               disabled={!input.trim() || sending}
-              style={{ background: input.trim() && !sending ? 'var(--accent)' : 'var(--bg-card)', border: 'none', borderRadius: '8px', cursor: input.trim() && !sending ? 'pointer' : 'default', padding: '6px 14px', fontFamily: "'DM Mono',monospace", fontSize: '10px', letterSpacing: '0.1em', textTransform: 'uppercase', color: input.trim() && !sending ? 'var(--bg-base)' : 'var(--text-muted)', transition: 'background 150ms', flexShrink: 0 }}
+              style={{
+                background: input.trim() && !sending ? 'var(--text-primary)' : 'var(--ghost-bg)',
+                border: `1px solid ${input.trim() && !sending ? 'var(--text-primary)' : 'var(--ghost-border)'}`,
+                borderRadius: '32px',
+                cursor: input.trim() && !sending ? 'pointer' : 'default',
+                padding: '5px 16px',
+                fontFamily: DIN_BOLD,
+                fontWeight: 700,
+                fontSize: '9px',
+                letterSpacing: '1.17px',
+                textTransform: 'uppercase',
+                color: input.trim() && !sending ? '#000000' : 'var(--text-muted)',
+                transition: 'all 150ms',
+                flexShrink: 0,
+              }}
             >
               Send
             </button>

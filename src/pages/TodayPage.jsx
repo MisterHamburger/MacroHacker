@@ -12,6 +12,9 @@ import { updateProfile } from '../services/profile'
 const TODAY = new Date().toISOString().split('T')[0]
 const TODAY_LABEL = new Date().toLocaleDateString('en-US', { weekday: 'long', month: 'long', day: 'numeric' }).toUpperCase()
 
+const DIN = "'D-DIN', Arial, Verdana, sans-serif"
+const DIN_BOLD = "'D-DIN-Bold', 'D-DIN', Arial, Verdana, sans-serif"
+
 function MacroBar({ totals, targets }) {
   const pct = (val, target) => target > 0 ? Math.min((val / target) * 100, 100) : 0
   const over = (val, target) => target > 0 && val > target
@@ -22,14 +25,14 @@ function MacroBar({ totals, targets }) {
     { key: 'carbs', label: 'CARB', val: totals.carbs, target: targets.daily_carbs },
   ]
   return (
-    <div style={{ background: 'var(--bg-surface)', borderBottom: '1px solid var(--border)', padding: '10px 16px 8px', flexShrink: 0 }}>
-      <div style={{ display: 'grid', gridTemplateColumns: 'repeat(4,1fr)', gap: '8px', marginBottom: '8px' }}>
+    <div style={{ background: 'var(--bg-surface)', borderBottom: '1px solid var(--border)', padding: '12px 16px 10px', flexShrink: 0 }}>
+      <div style={{ display: 'grid', gridTemplateColumns: 'repeat(4,1fr)', gap: '8px', marginBottom: '10px' }}>
         {macros.map(({ key, label, val, target }) => (
           <div key={key} style={{ textAlign: 'center' }}>
-            <div style={{ fontFamily: "'Bebas Neue',sans-serif", fontSize: '24px', lineHeight: 1, color: over(val, target) ? 'var(--status-over)' : key === 'calories' ? 'var(--accent)' : 'var(--text-primary)' }}>
+            <div style={{ fontFamily: DIN_BOLD, fontSize: '22px', lineHeight: 1, letterSpacing: '0.96px', color: over(val, target) ? 'var(--status-over)' : 'var(--text-primary)', fontWeight: 700 }}>
               {val}
             </div>
-            <div style={{ fontFamily: "'DM Mono',monospace", fontSize: '8px', letterSpacing: '0.12em', color: 'var(--text-muted)', textTransform: 'uppercase', marginTop: '2px' }}>
+            <div style={{ fontFamily: DIN, fontSize: '8px', letterSpacing: '1.17px', color: 'var(--text-muted)', textTransform: 'uppercase', marginTop: '3px' }}>
               {label} <span style={{ color: 'var(--text-secondary)' }}>/ {target}</span>
             </div>
           </div>
@@ -37,8 +40,8 @@ function MacroBar({ totals, targets }) {
       </div>
       <div style={{ display: 'flex', gap: '4px' }}>
         {macros.map(({ key, val, target }) => (
-          <div key={key} style={{ flex: 1, height: '3px', background: 'var(--border)', borderRadius: '2px', overflow: 'hidden' }}>
-            <div style={{ height: '100%', width: `${pct(val, target)}%`, background: over(val, target) ? 'var(--status-over)' : 'var(--accent)', transition: 'width 300ms', borderRadius: '2px' }} />
+          <div key={key} style={{ flex: 1, height: '2px', background: 'var(--border)', overflow: 'hidden' }}>
+            <div style={{ height: '100%', width: `${pct(val, target)}%`, background: over(val, target) ? 'var(--status-over)' : 'var(--accent)', transition: 'width 300ms' }} />
           </div>
         ))}
       </div>
@@ -48,13 +51,11 @@ function MacroBar({ totals, targets }) {
 
 function renderText(text) {
   if (!text) return null
-  // Split on **bold** and render inline
   const parts = text.split(/(\*\*[^*]+\*\*)/g)
   return parts.map((part, i) => {
     if (part.startsWith('**') && part.endsWith('**')) {
-      return <strong key={i} style={{ fontWeight: 600 }}>{part.slice(2, -2)}</strong>
+      return <strong key={i} style={{ fontWeight: 700 }}>{part.slice(2, -2)}</strong>
     }
-    // Render newlines as line breaks
     return part.split('\n').map((line, j, arr) => (
       <span key={`${i}-${j}`}>{line}{j < arr.length - 1 && <br />}</span>
     ))
@@ -65,18 +66,18 @@ function Message({ msg }) {
   const isUser = msg.role === 'user'
   const time = new Date(msg.created_at || Date.now()).toLocaleTimeString('en-US', { hour: 'numeric', minute: '2-digit' })
   return (
-    <div style={{ display: 'flex', flexDirection: 'column', alignItems: isUser ? 'flex-end' : 'flex-start', marginBottom: '16px', padding: '0 16px' }}>
+    <div style={{ display: 'flex', flexDirection: 'column', alignItems: isUser ? 'flex-end' : 'flex-start', marginBottom: '20px', padding: '0 16px' }}>
       {isUser ? (
-        <div style={{ background: 'var(--bg-elevated)', borderRadius: '12px 12px 2px 12px', padding: '10px 14px', maxWidth: '80%', fontSize: '14px', color: 'var(--text-primary)', lineHeight: '1.5' }}>
+        <div style={{ background: 'var(--ghost-bg)', border: '1px solid var(--ghost-border)', borderRadius: '4px 4px 0 4px', padding: '10px 14px', maxWidth: '82%', fontSize: '13px', fontFamily: DIN, color: 'var(--text-primary)', lineHeight: '1.6', letterSpacing: '0.02em', textTransform: 'none' }}>
           {msg.imagePreview && (
-            <img src={msg.imagePreview} alt="food" style={{ width: '100%', maxWidth: '220px', borderRadius: '8px', display: 'block', marginBottom: msg.content ? '8px' : 0 }} />
+            <img src={msg.imagePreview} alt="food" style={{ width: '100%', maxWidth: '220px', borderRadius: '2px', display: 'block', marginBottom: msg.content ? '8px' : 0 }} />
           )}
           {msg.content && msg.content !== '[photo]' && msg.content}
         </div>
       ) : (
-        <div style={{ maxWidth: '92%' }}>
+        <div style={{ maxWidth: '94%' }}>
           {msg.actions?.length > 0 && (
-            <div style={{ borderLeft: '2px solid var(--accent)', paddingLeft: '10px', marginBottom: '8px', fontFamily: "'DM Mono',monospace", fontSize: '9px', letterSpacing: '0.1em', textTransform: 'uppercase', color: 'var(--accent)' }}>
+            <div style={{ borderLeft: '1px solid var(--ghost-border)', paddingLeft: '10px', marginBottom: '10px', fontFamily: DIN, fontSize: '9px', letterSpacing: '1.17px', textTransform: 'uppercase', color: 'var(--text-secondary)' }}>
               {msg.actions.map((a, i) => (
                 <div key={i}>
                   {a.type === 'log_food' && `✓ Logged · ${a.totals?.calories || 0} cal`}
@@ -86,12 +87,12 @@ function Message({ msg }) {
               ))}
             </div>
           )}
-          <div style={{ fontSize: '14px', color: 'var(--text-primary)', lineHeight: '1.6' }}>
+          <div style={{ fontSize: '13px', fontFamily: DIN, color: 'var(--text-primary)', lineHeight: '1.65', textTransform: 'none', letterSpacing: '0.02em' }}>
             {renderText(msg.content)}
           </div>
         </div>
       )}
-      <div style={{ fontFamily: "'DM Mono',monospace", fontSize: '9px', color: 'var(--text-muted)', marginTop: '4px', letterSpacing: '0.08em' }}>
+      <div style={{ fontFamily: DIN, fontSize: '8px', color: 'var(--text-muted)', marginTop: '5px', letterSpacing: '1px', textTransform: 'uppercase' }}>
         {time}
       </div>
     </div>
@@ -143,7 +144,6 @@ export default function TodayPage() {
       setRecentWorkouts(workouts)
       setTodayWorkout(workout)
 
-      // Auto-fire opening if no chat yet today
       if (msgs.length === 0 && !openingFiredRef.current) {
         openingFiredRef.current = true
         generateDailyOpening({ profile, totals, entries: [], recentWorkouts: workouts, todayWorkout: workout })
@@ -312,46 +312,76 @@ export default function TodayPage() {
   return (
     <div style={{ display: 'flex', flexDirection: 'column', height: 'calc(100dvh - 64px)', background: 'var(--bg-base)' }}>
       <MacroBar totals={totals} targets={targets} />
-      <div style={{ flex: 1, overflowY: 'auto', paddingTop: '16px', paddingBottom: '8px' }}>
-        <div style={{ textAlign: 'center', fontFamily: "'DM Mono',monospace", fontSize: '9px', letterSpacing: '0.15em', textTransform: 'uppercase', color: 'var(--text-muted)', marginBottom: '20px' }}>
+
+      {/* Chat area */}
+      <div style={{ flex: 1, overflowY: 'auto', paddingTop: '20px', paddingBottom: '8px' }}>
+        <div style={{ textAlign: 'center', fontFamily: DIN, fontSize: '8px', letterSpacing: '1.17px', textTransform: 'uppercase', color: 'var(--text-muted)', marginBottom: '24px' }}>
           {TODAY_LABEL}
         </div>
         {messages.length === 0 && (
-          <div style={{ textAlign: 'center', padding: '40px 32px', fontFamily: "'DM Mono',monospace", fontSize: '10px', letterSpacing: '0.12em', textTransform: 'uppercase', color: 'var(--text-muted)', lineHeight: '1.8' }}>
+          <div style={{ textAlign: 'center', padding: '40px 32px', fontFamily: DIN, fontSize: '10px', letterSpacing: '1.17px', textTransform: 'uppercase', color: 'var(--text-muted)', lineHeight: '2' }}>
             Log food, record a workout,<br />or ask anything.
           </div>
         )}
         {messages.map((msg, i) => <Message key={i} msg={msg} />)}
         {sending && (
-          <div style={{ padding: '0 16px 16px', fontFamily: "'DM Mono',monospace", fontSize: '10px', letterSpacing: '0.1em', color: 'var(--text-muted)' }}>···</div>
+          <div style={{ padding: '0 16px 16px', fontFamily: DIN, fontSize: '10px', letterSpacing: '0.3em', color: 'var(--text-muted)' }}>···</div>
         )}
         <div ref={bottomRef} />
       </div>
-      <div style={{ background: 'var(--bg-surface)', borderTop: '1px solid var(--border)', padding: '12px 16px', paddingBottom: 'calc(12px + env(safe-area-inset-bottom))', flexShrink: 0 }}>
+
+      {/* Input bar */}
+      <div style={{ background: 'var(--bg-surface)', borderTop: '1px solid var(--border)', padding: '10px 16px', paddingBottom: 'calc(10px + env(safe-area-inset-bottom))', flexShrink: 0 }}>
         <div
           onDragOver={e => { e.preventDefault(); setDragOver(true) }}
           onDragLeave={() => setDragOver(false)}
           onDrop={handleDrop}
-          style={{ background: dragOver ? 'var(--accent-dim)' : 'var(--bg-elevated)', border: `1px solid ${dragOver ? 'var(--accent)' : 'var(--border)'}`, borderRadius: '12px', padding: '10px 12px', display: 'flex', alignItems: 'flex-end', gap: '8px', transition: 'background 150ms, border-color 150ms' }}>
+          style={{
+            background: dragOver ? 'rgba(240,240,250,0.15)' : 'var(--ghost-bg)',
+            border: `1px solid ${dragOver ? 'var(--ghost-border)' : 'rgba(240,240,250,0.15)'}`,
+            borderRadius: '4px',
+            padding: '10px 12px',
+            display: 'flex',
+            alignItems: 'flex-end',
+            gap: '8px',
+            transition: 'background 150ms, border-color 150ms',
+          }}
+        >
           <textarea
             value={input}
             onChange={e => { setInput(e.target.value); localStorage.setItem('draft_input', e.target.value) }}
             onKeyDown={handleKeyDown}
             onPaste={handlePaste}
-            placeholder="Log food, record a workout, ask anything..."
+            placeholder="Log food or workout..."
             rows={1}
-            style={{ flex: 1, background: 'none', border: 'none', outline: 'none', resize: 'none', fontSize: '14px', color: 'var(--text-primary)', fontFamily: "'DM Sans',sans-serif", lineHeight: '1.5', maxHeight: '120px', overflow: 'auto' }}
+            style={{ flex: 1, background: 'none', border: 'none', outline: 'none', resize: 'none', fontSize: '13px', color: 'var(--text-primary)', fontFamily: DIN, lineHeight: '1.5', maxHeight: '120px', overflow: 'auto', textTransform: 'none', letterSpacing: '0.02em' }}
             onInput={e => { e.target.style.height = 'auto'; e.target.style.height = Math.min(e.target.scrollHeight, 120) + 'px' }}
           />
           <div style={{ display: 'flex', gap: '6px', alignItems: 'center', flexShrink: 0 }}>
-            <button onClick={toggleVoice} style={{ background: listening ? 'var(--accent-dim)' : 'none', border: 'none', cursor: 'pointer', padding: '4px', borderRadius: '6px', color: listening ? 'var(--accent)' : 'var(--text-muted)', fontSize: '16px', lineHeight: 1 }}>
+            <button onClick={toggleVoice} style={{ background: listening ? 'rgba(240,240,250,0.15)' : 'none', border: 'none', cursor: 'pointer', padding: '4px', borderRadius: '4px', color: listening ? 'var(--accent)' : 'var(--text-muted)', fontSize: '15px', lineHeight: 1 }}>
               {listening ? '⏹' : '🎤'}
             </button>
-            <label style={{ cursor: 'pointer', padding: '4px', color: 'var(--text-muted)', fontSize: '16px', lineHeight: 1 }}>
+            <label style={{ cursor: 'pointer', padding: '4px', color: 'var(--text-muted)', fontSize: '15px', lineHeight: 1 }}>
               📷<input type="file" accept="image/*" capture="environment" onChange={handlePhoto} style={{ display: 'none' }} />
             </label>
-            <button onClick={() => handleSend()} disabled={!input.trim() || sending}
-              style={{ background: input.trim() && !sending ? 'var(--accent)' : 'var(--bg-card)', border: 'none', borderRadius: '8px', cursor: input.trim() && !sending ? 'pointer' : 'default', padding: '6px 14px', fontFamily: "'DM Mono',monospace", fontSize: '10px', letterSpacing: '0.1em', textTransform: 'uppercase', color: input.trim() && !sending ? 'var(--bg-base)' : 'var(--text-muted)', transition: 'background 150ms' }}>
+            <button
+              onClick={() => handleSend()}
+              disabled={!input.trim() || sending}
+              style={{
+                background: input.trim() && !sending ? 'var(--text-primary)' : 'var(--ghost-bg)',
+                border: `1px solid ${input.trim() && !sending ? 'var(--text-primary)' : 'var(--ghost-border)'}`,
+                borderRadius: '32px',
+                cursor: input.trim() && !sending ? 'pointer' : 'default',
+                padding: '5px 16px',
+                fontFamily: DIN,
+                fontWeight: 700,
+                fontSize: '9px',
+                letterSpacing: '1.17px',
+                textTransform: 'uppercase',
+                color: input.trim() && !sending ? '#000000' : 'var(--text-muted)',
+                transition: 'all 150ms',
+              }}
+            >
               Send
             </button>
           </div>

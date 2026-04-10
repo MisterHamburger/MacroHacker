@@ -3,6 +3,9 @@ import { useAuth } from '../hooks/useAuth'
 import { useProfile } from '../hooks/useProfile'
 import { getHistoryDays } from '../services/logs'
 
+const DIN = "'D-DIN', Arial, Verdana, sans-serif"
+const DIN_BOLD = "'D-DIN-Bold', 'D-DIN', Arial, Verdana, sans-serif"
+
 const WORKOUT_LABELS = {
   lifting: 'LIFT',
   skillmill: 'SKILLMILL',
@@ -48,37 +51,30 @@ function DayCard({ day, targets }) {
   ]
 
   return (
-    <div style={{
-      background: 'var(--bg-card)',
-      border: '1px solid var(--border-subtle)',
-      borderRadius: 'var(--r-lg)',
-      padding: '16px',
-      marginBottom: '8px',
-    }}>
+    <div style={{ borderTop: '1px solid var(--border-subtle)', padding: '16px 0', marginBottom: '4px' }}>
       {/* Header row */}
-      <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '12px' }}>
-        <span style={{ fontFamily: "'DM Mono',monospace", fontSize: '10px', letterSpacing: '0.12em', color: 'var(--text-secondary)', textTransform: 'uppercase' }}>
+      <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '14px' }}>
+        <span style={{ fontFamily: DIN_BOLD, fontWeight: 700, fontSize: '11px', letterSpacing: '1.17px', color: 'var(--text-secondary)', textTransform: 'uppercase' }}>
           {dateLabel}
         </span>
-        <div style={{ display: 'flex', gap: '6px', alignItems: 'center' }}>
+        <div style={{ display: 'flex', gap: '8px', alignItems: 'center' }}>
           {workoutLabel && (
-            <span style={{
-              fontFamily: "'DM Mono',monospace", fontSize: '8px', letterSpacing: '0.1em',
-              textTransform: 'uppercase', color: 'var(--accent)',
-              background: 'var(--accent-dim)', padding: '2px 7px', borderRadius: '4px',
-            }}>
+            <span style={{ fontFamily: DIN, fontSize: '8px', letterSpacing: '1px', textTransform: 'uppercase', color: 'var(--text-secondary)', border: '1px solid var(--ghost-border)', padding: '2px 8px', borderRadius: '32px' }}>
               {workoutLabel}
             </span>
           )}
           {hasFood && (
             <span style={{
-              fontFamily: "'DM Mono',monospace", fontSize: '8px', letterSpacing: '0.1em',
+              fontFamily: DIN,
+              fontSize: '8px',
+              letterSpacing: '1px',
               textTransform: 'uppercase',
-              color: calHit && proHit ? 'var(--accent)' : 'var(--text-muted)',
-              background: calHit && proHit ? 'var(--accent-dim)' : 'var(--bg-elevated)',
-              padding: '2px 7px', borderRadius: '4px',
+              color: calHit && proHit ? 'var(--text-primary)' : 'var(--text-muted)',
+              border: `1px solid ${calHit && proHit ? 'var(--ghost-border)' : 'rgba(240,240,250,0.08)'}`,
+              padding: '2px 8px',
+              borderRadius: '32px',
             }}>
-              {calHit && proHit ? 'ON TARGET' : 'OFF TARGET'}
+              {calHit && proHit ? 'On Target' : 'Off Target'}
             </span>
           )}
         </div>
@@ -86,17 +82,14 @@ function DayCard({ day, targets }) {
 
       {hasFood ? (
         <>
-          {/* Big numbers */}
+          {/* Numbers */}
           <div style={{ display: 'grid', gridTemplateColumns: 'repeat(4,1fr)', gap: '4px', marginBottom: '10px' }}>
             {macros.map(({ label, val, target }) => (
               <div key={label} style={{ textAlign: 'center' }}>
-                <div style={{
-                  fontFamily: "'Bebas Neue',sans-serif", fontSize: '22px', lineHeight: 1,
-                  color: val > target && target > 0 ? 'var(--status-over)' : label === 'CAL' ? 'var(--accent)' : 'var(--text-primary)'
-                }}>
+                <div style={{ fontFamily: DIN_BOLD, fontWeight: 700, fontSize: '20px', lineHeight: 1, letterSpacing: '0.96px', color: val > target && target > 0 ? 'var(--status-over)' : 'var(--text-primary)' }}>
                   {val}
                 </div>
-                <div style={{ fontFamily: "'DM Mono',monospace", fontSize: '7px', letterSpacing: '0.1em', color: 'var(--text-muted)', textTransform: 'uppercase', marginTop: '1px' }}>
+                <div style={{ fontFamily: DIN, fontSize: '7px', letterSpacing: '1px', color: 'var(--text-muted)', textTransform: 'uppercase', marginTop: '2px' }}>
                   {label} <span style={{ color: 'var(--text-secondary)' }}>/{target}</span>
                 </div>
               </div>
@@ -104,27 +97,23 @@ function DayCard({ day, targets }) {
           </div>
 
           {/* Progress bars */}
-          <div style={{ display: 'flex', gap: '3px' }}>
+          <div style={{ display: 'flex', gap: '4px' }}>
             {macros.map(({ label, val, target }) => (
-              <div key={label} style={{ flex: 1, height: '3px', background: 'var(--border)', borderRadius: '2px', overflow: 'hidden' }}>
-                <div style={{
-                  height: '100%', width: `${pct(val, target)}%`,
-                  background: val > target && target > 0 ? 'var(--status-over)' : 'var(--accent)',
-                  borderRadius: '2px',
-                }} />
+              <div key={label} style={{ flex: 1, height: '2px', background: 'var(--border)', overflow: 'hidden' }}>
+                <div style={{ height: '100%', width: `${pct(val, target)}%`, background: val > target && target > 0 ? 'var(--status-over)' : 'var(--text-primary)' }} />
               </div>
             ))}
           </div>
         </>
       ) : (
-        <div style={{ fontFamily: "'DM Mono',monospace", fontSize: '9px', letterSpacing: '0.1em', textTransform: 'uppercase', color: 'var(--text-muted)' }}>
+        <div style={{ fontFamily: DIN, fontSize: '9px', letterSpacing: '1px', textTransform: 'uppercase', color: 'var(--text-muted)' }}>
           {workout ? 'Workout logged · No food tracked' : 'No data'}
         </div>
       )}
 
       {/* Workout detail */}
       {workout?.raw_input && (
-        <div style={{ marginTop: '10px', paddingTop: '10px', borderTop: '1px solid var(--border-subtle)', fontFamily: "'DM Sans',sans-serif", fontSize: '12px', color: 'var(--text-muted)' }}>
+        <div style={{ marginTop: '12px', fontFamily: DIN, fontSize: '11px', color: 'var(--text-muted)', textTransform: 'none', letterSpacing: '0.02em', lineHeight: 1.5 }}>
           {workout.raw_input}
         </div>
       )}
@@ -152,20 +141,20 @@ export default function HistoryPage() {
 
   return (
     <div style={{ minHeight: '100dvh', background: 'var(--bg-base)', paddingBottom: 'calc(80px + env(safe-area-inset-bottom))' }}>
-      <div style={{ padding: '24px 16px 8px' }}>
-        <div style={{ fontFamily: "'DM Mono',monospace", fontSize: '9px', letterSpacing: '0.15em', textTransform: 'uppercase', color: 'var(--text-muted)', marginBottom: '4px' }}>
+      <div style={{ padding: '28px 16px 8px' }}>
+        <div style={{ fontFamily: DIN, fontSize: '8px', letterSpacing: '1.17px', textTransform: 'uppercase', color: 'var(--text-muted)', marginBottom: '6px' }}>
           Log
         </div>
-        <div style={{ fontFamily: "'Bebas Neue',sans-serif", fontSize: '32px', color: 'var(--text-primary)', lineHeight: 1, marginBottom: '20px' }}>
+        <div style={{ fontFamily: DIN_BOLD, fontWeight: 700, fontSize: '36px', letterSpacing: '0.96px', textTransform: 'uppercase', color: 'var(--text-primary)', lineHeight: 1, marginBottom: '24px' }}>
           History
         </div>
 
         {loading ? (
-          <div style={{ fontFamily: "'DM Mono',monospace", fontSize: '10px', letterSpacing: '0.12em', textTransform: 'uppercase', color: 'var(--text-muted)', textAlign: 'center', padding: '40px 0' }}>
+          <div style={{ fontFamily: DIN, fontSize: '9px', letterSpacing: '1.17px', textTransform: 'uppercase', color: 'var(--text-muted)', textAlign: 'center', padding: '40px 0' }}>
             Loading...
           </div>
         ) : days.length === 0 ? (
-          <div style={{ fontFamily: "'DM Mono',monospace", fontSize: '10px', letterSpacing: '0.12em', textTransform: 'uppercase', color: 'var(--text-muted)', textAlign: 'center', padding: '40px 0' }}>
+          <div style={{ fontFamily: DIN, fontSize: '9px', letterSpacing: '1.17px', textTransform: 'uppercase', color: 'var(--text-muted)', textAlign: 'center', padding: '40px 0' }}>
             No history yet
           </div>
         ) : (

@@ -3,23 +3,27 @@
 @tailwind utilities;
 
 :root {
-  --bg-base: #0a0a0a;
-  --bg-surface: #111111;
-  --bg-elevated: #1a1a1a;
-  --bg-card: #141414;
-  --border: #222222;
-  --border-subtle: #1c1c1c;
-  --text-primary: #f0f0f0;
-  --text-secondary: #cccccc;
-  --text-muted: #999999;
-  --accent: #c8f135;
-  --accent-dim: rgba(200, 241, 53, 0.12);
-  --accent-glow: rgba(200, 241, 53, 0.25);
-  --status-good: #c8f135;
-  --status-over: #ff6b6b;
-  --r-sm: 6px;
-  --r-md: 12px;
-  --r-lg: 20px;
+  /* SpaceX aesthetic — space black, spectral white, zero decoration */
+  --bg-base: #000000;
+  --bg-surface: #050505;
+  --bg-elevated: #0a0a0a;
+  --bg-card: #050505;
+  --border: rgba(240,240,250,0.12);
+  --border-subtle: rgba(240,240,250,0.06);
+  --text-primary: #f0f0fa;
+  --text-secondary: rgba(240,240,250,0.5);
+  --text-muted: rgba(240,240,250,0.25);
+  --accent: #f0f0fa;
+  --accent-dim: rgba(240,240,250,0.1);
+  --accent-glow: rgba(240,240,250,0.15);
+  --ghost-bg: rgba(240,240,250,0.1);
+  --ghost-border: rgba(240,240,250,0.35);
+  --status-good: #f0f0fa;
+  --status-over: #ff4040;
+  --r-sm: 4px;
+  --r-md: 4px;
+  --r-lg: 4px;
+  --r-button: 32px;
 }
 
 * {
@@ -32,18 +36,30 @@ html, body, #root {
   height: 100%;
   background: var(--bg-base);
   color: var(--text-primary);
-  font-family: 'DM Sans', sans-serif;
+  font-family: 'D-DIN', Arial, Verdana, sans-serif;
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
+  text-transform: uppercase;
+  letter-spacing: 0.02em;
 }
 
 input, textarea, select, button {
   font-family: inherit;
   color: inherit;
+  text-transform: inherit;
+}
+
+/* Don't force uppercase on textarea/input content */
+input, textarea {
+  text-transform: none;
+  letter-spacing: normal;
 }
 
 input::placeholder, textarea::placeholder {
   color: var(--text-muted);
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  font-size: 0.7em;
 }
 
 /* Remove number input spinners */
@@ -57,12 +73,53 @@ input[type="number"] {
 }
 
 ::-webkit-scrollbar {
-  width: 4px;
+  width: 2px;
 }
 ::-webkit-scrollbar-track {
   background: transparent;
 }
 ::-webkit-scrollbar-thumb {
-  background: var(--border);
-  border-radius: 2px;
+  background: var(--ghost-border);
+  border-radius: 0;
+}
+
+/* Ghost button utility */
+.ghost-btn {
+  background: var(--ghost-bg);
+  border: 1px solid var(--ghost-border);
+  border-radius: var(--r-button);
+  color: var(--text-primary);
+  font-family: 'D-DIN', Arial, Verdana, sans-serif;
+  font-size: 12px;
+  font-weight: 700;
+  letter-spacing: 1.17px;
+  text-transform: uppercase;
+  padding: 14px 24px;
+  cursor: pointer;
+  transition: background 150ms;
+}
+
+.ghost-btn:hover {
+  background: rgba(240,240,250,0.18);
+}
+
+/* Solid primary button */
+.solid-btn {
+  background: var(--text-primary);
+  border: 1px solid var(--text-primary);
+  border-radius: var(--r-button);
+  color: #000000;
+  font-family: 'D-DIN', Arial, Verdana, sans-serif;
+  font-size: 12px;
+  font-weight: 700;
+  letter-spacing: 1.17px;
+  text-transform: uppercase;
+  padding: 14px 24px;
+  cursor: pointer;
+  transition: opacity 150ms;
+}
+
+.solid-btn:disabled {
+  opacity: 0.35;
+  cursor: not-allowed;
 }

@@ -3,6 +3,8 @@ import { useAuth } from '../hooks/useAuth'
 import { updateProfile } from '../services/profile'
 
 const STEPS = ['name', 'age_sex', 'height_weight', 'activity']
+const DIN = "'D-DIN', Arial, Verdana, sans-serif"
+const DIN_BOLD = "'D-DIN-Bold', 'D-DIN', Arial, Verdana, sans-serif"
 
 export default function OnboardingPage({ onComplete }) {
   const { user } = useAuth()
@@ -40,57 +42,74 @@ export default function OnboardingPage({ onComplete }) {
     }
   }
 
-  function next() {
-    if (step < STEPS.length - 1) setStep(step + 1)
-  }
-  function back() {
-    if (step > 0) setStep(step - 1)
-  }
+  function next() { if (step < STEPS.length - 1) setStep(step + 1) }
+  function back() { if (step > 0) setStep(step - 1) }
 
   const inputStyle = {
-    background: 'var(--bg-surface)',
-    border: '1px solid var(--border)',
-    borderRadius: 'var(--r-sm)',
+    width: '100%',
+    padding: '14px 16px',
+    background: 'rgba(240,240,250,0.05)',
+    border: '1px solid rgba(240,240,250,0.2)',
+    borderRadius: '4px',
+    color: 'var(--text-primary)',
+    fontFamily: DIN,
+    fontSize: '13px',
+    letterSpacing: '0.02em',
+    textTransform: 'none',
+    outline: 'none',
   }
 
-  const activeChip = {
-    background: 'var(--accent)',
-    color: 'var(--bg-base)',
-    border: '1px solid var(--accent)',
-    borderRadius: 'var(--r-sm)',
-  }
-
-  const inactiveChip = {
-    background: 'transparent',
-    color: 'var(--text-secondary)',
-    border: '1px solid var(--border)',
-    borderRadius: 'var(--r-sm)',
+  const chipActive = {
+    flex: 1,
+    padding: '12px',
+    background: 'var(--text-primary)',
+    color: '#000000',
+    border: '1px solid var(--text-primary)',
+    borderRadius: '4px',
     cursor: 'pointer',
+    fontFamily: DIN_BOLD,
+    fontWeight: 700,
+    fontSize: '10px',
+    letterSpacing: '1.17px',
+    textTransform: 'uppercase',
+    textAlign: 'center',
+  }
+
+  const chipInactive = {
+    flex: 1,
+    padding: '12px',
+    background: 'var(--ghost-bg)',
+    color: 'var(--text-secondary)',
+    border: '1px solid rgba(240,240,250,0.15)',
+    borderRadius: '4px',
+    cursor: 'pointer',
+    fontFamily: DIN,
+    fontSize: '10px',
+    letterSpacing: '1.17px',
+    textTransform: 'uppercase',
+    textAlign: 'center',
   }
 
   return (
-    <div className="min-h-screen flex flex-col px-6 pt-16 pb-8" style={{ background: 'var(--bg-base)' }}>
+    <div style={{ minHeight: '100vh', display: 'flex', flexDirection: 'column', padding: '64px 24px 32px', background: 'var(--bg-base)' }}>
       {/* Progress */}
-      <div className="flex gap-1 mb-12">
+      <div style={{ display: 'flex', gap: '4px', marginBottom: '48px' }}>
         {STEPS.map((_, i) => (
-          <div
-            key={i}
-            className="flex-1 h-[3px] rounded-full"
-            style={{ background: i <= step ? 'var(--accent)' : 'var(--border)' }}
-          />
+          <div key={i} style={{ flex: 1, height: '2px', background: i <= step ? 'var(--text-primary)' : 'var(--border)' }} />
         ))}
       </div>
 
-      <div className="flex-1">
+      <div style={{ flex: 1 }}>
         {STEPS[step] === 'name' && (
           <div>
-            <h2 className="font-bebas text-3xl mb-2" style={{ color: 'var(--text-primary)' }}>What's your name?</h2>
+            <h2 style={{ fontFamily: DIN_BOLD, fontWeight: 700, fontSize: '32px', letterSpacing: '0.96px', textTransform: 'uppercase', color: 'var(--text-primary)', lineHeight: 1, marginBottom: '32px' }}>
+              What's your name?
+            </h2>
             <input
               type="text"
               value={form.name}
               onChange={(e) => setForm({ ...form, name: e.target.value })}
               placeholder="Name"
-              className="w-full px-4 py-3 text-sm rounded-md outline-none mt-4"
               style={inputStyle}
               autoFocus
             />
@@ -99,24 +118,20 @@ export default function OnboardingPage({ onComplete }) {
 
         {STEPS[step] === 'age_sex' && (
           <div>
-            <h2 className="font-bebas text-3xl mb-2" style={{ color: 'var(--text-primary)' }}>Age & Sex</h2>
+            <h2 style={{ fontFamily: DIN_BOLD, fontWeight: 700, fontSize: '32px', letterSpacing: '0.96px', textTransform: 'uppercase', color: 'var(--text-primary)', lineHeight: 1, marginBottom: '32px' }}>
+              Age & Sex
+            </h2>
             <input
               type="number"
               value={form.age}
               onChange={(e) => setForm({ ...form, age: e.target.value })}
               placeholder="Age"
-              className="w-full px-4 py-3 text-sm rounded-md outline-none mt-4"
-              style={inputStyle}
+              style={{ ...inputStyle, marginBottom: '12px' }}
               autoFocus
             />
-            <div className="flex gap-2 mt-4">
+            <div style={{ display: 'flex', gap: '8px' }}>
               {['male', 'female'].map((s) => (
-                <button
-                  key={s}
-                  onClick={() => setForm({ ...form, sex: s })}
-                  className="flex-1 py-2 font-mono text-xs uppercase tracking-widest"
-                  style={form.sex === s ? activeChip : inactiveChip}
-                >
+                <button key={s} onClick={() => setForm({ ...form, sex: s })} style={form.sex === s ? chipActive : chipInactive}>
                   {s}
                 </button>
               ))}
@@ -126,71 +141,57 @@ export default function OnboardingPage({ onComplete }) {
 
         {STEPS[step] === 'height_weight' && (
           <div>
-            <h2 className="font-bebas text-3xl mb-2" style={{ color: 'var(--text-primary)' }}>Height & Weight</h2>
-            <div className="flex gap-2 mt-4">
-              <input
-                type="number"
-                value={form.height_feet}
-                onChange={(e) => setForm({ ...form, height_feet: e.target.value })}
-                placeholder="Feet"
-                className="flex-1 px-4 py-3 text-sm rounded-md outline-none"
-                style={inputStyle}
-                autoFocus
-              />
-              <input
-                type="number"
-                value={form.height_inches}
-                onChange={(e) => setForm({ ...form, height_inches: e.target.value })}
-                placeholder="Inches"
-                className="flex-1 px-4 py-3 text-sm rounded-md outline-none"
-                style={inputStyle}
-              />
+            <h2 style={{ fontFamily: DIN_BOLD, fontWeight: 700, fontSize: '32px', letterSpacing: '0.96px', textTransform: 'uppercase', color: 'var(--text-primary)', lineHeight: 1, marginBottom: '32px' }}>
+              Height & Weight
+            </h2>
+            <div style={{ display: 'flex', gap: '8px', marginBottom: '12px' }}>
+              <input type="number" value={form.height_feet} onChange={(e) => setForm({ ...form, height_feet: e.target.value })} placeholder="Feet" style={{ ...inputStyle, flex: 1 }} autoFocus />
+              <input type="number" value={form.height_inches} onChange={(e) => setForm({ ...form, height_inches: e.target.value })} placeholder="Inches" style={{ ...inputStyle, flex: 1 }} />
             </div>
-            <input
-              type="number"
-              value={form.weight_lbs}
-              onChange={(e) => setForm({ ...form, weight_lbs: e.target.value })}
-              placeholder="Weight (lbs)"
-              className="w-full px-4 py-3 text-sm rounded-md outline-none mt-2"
-              style={inputStyle}
-            />
+            <input type="number" value={form.weight_lbs} onChange={(e) => setForm({ ...form, weight_lbs: e.target.value })} placeholder="Weight (lbs)" style={inputStyle} />
           </div>
         )}
 
         {STEPS[step] === 'activity' && (
           <div>
-            <h2 className="font-bebas text-3xl mb-2" style={{ color: 'var(--text-primary)' }}>Activity Level</h2>
-            <div className="flex flex-col gap-2 mt-4">
+            <h2 style={{ fontFamily: DIN_BOLD, fontWeight: 700, fontSize: '32px', letterSpacing: '0.96px', textTransform: 'uppercase', color: 'var(--text-primary)', lineHeight: 1, marginBottom: '32px' }}>
+              Activity Level
+            </h2>
+            <div style={{ display: 'flex', flexDirection: 'column', gap: '8px' }}>
               {[
                 { value: 'sedentary', label: 'Sedentary', desc: 'Little or no exercise' },
-                { value: 'light', label: 'Light', desc: '1-3 days/week' },
-                { value: 'moderate', label: 'Moderate', desc: '3-5 days/week' },
-                { value: 'active', label: 'Active', desc: '6-7 days/week' },
+                { value: 'light', label: 'Light', desc: '1–3 days/week' },
+                { value: 'moderate', label: 'Moderate', desc: '3–5 days/week' },
+                { value: 'active', label: 'Active', desc: '6–7 days/week' },
                 { value: 'very_active', label: 'Very Active', desc: 'Twice daily' },
               ].map(({ value, label, desc }) => (
                 <button
                   key={value}
                   onClick={() => setForm({ ...form, activity_level: value })}
-                  className="flex justify-between items-center px-4 py-3 font-mono text-xs uppercase tracking-widest"
-                  style={form.activity_level === value ? activeChip : inactiveChip}
+                  style={{
+                    ...(form.activity_level === value ? chipActive : chipInactive),
+                    flex: 'unset',
+                    display: 'flex',
+                    justifyContent: 'space-between',
+                    alignItems: 'center',
+                    padding: '14px 16px',
+                  }}
                 >
                   <span>{label}</span>
-                  <span className="text-[10px] normal-case" style={{ opacity: 0.6, letterSpacing: '0' }}>{desc}</span>
+                  <span style={{ fontFamily: DIN, fontSize: '10px', letterSpacing: '0.5px', opacity: 0.6, textTransform: 'none', fontWeight: 400 }}>{desc}</span>
                 </button>
               ))}
             </div>
           </div>
         )}
-
       </div>
 
       {/* Navigation */}
-      <div className="flex gap-2 mt-8">
+      <div style={{ display: 'flex', gap: '8px', marginTop: '32px' }}>
         {step > 0 && (
           <button
             onClick={back}
-            className="px-6 py-3 rounded-md font-mono text-xs uppercase tracking-widest"
-            style={{ background: 'transparent', color: 'var(--text-secondary)', border: '1px solid var(--border)', cursor: 'pointer', borderRadius: 'var(--r-sm)' }}
+            style={{ padding: '14px 24px', background: 'var(--ghost-bg)', color: 'var(--text-secondary)', border: '1px solid var(--ghost-border)', borderRadius: '32px', cursor: 'pointer', fontFamily: DIN_BOLD, fontWeight: 700, fontSize: '11px', letterSpacing: '1.17px', textTransform: 'uppercase' }}
           >
             Back
           </button>
@@ -198,8 +199,7 @@ export default function OnboardingPage({ onComplete }) {
         {step < STEPS.length - 1 ? (
           <button
             onClick={next}
-            className="flex-1 py-3 rounded-md font-mono text-xs uppercase tracking-widest"
-            style={{ background: 'var(--accent)', color: 'var(--bg-base)', border: 'none', cursor: 'pointer', borderRadius: 'var(--r-sm)' }}
+            style={{ flex: 1, padding: '14px', background: 'var(--text-primary)', color: '#000000', border: '1px solid var(--text-primary)', borderRadius: '32px', cursor: 'pointer', fontFamily: DIN_BOLD, fontWeight: 700, fontSize: '11px', letterSpacing: '1.17px', textTransform: 'uppercase' }}
           >
             Next
           </button>
@@ -207,8 +207,7 @@ export default function OnboardingPage({ onComplete }) {
           <button
             onClick={handleFinish}
             disabled={loading || !form.name || !form.age || !totalInches || !form.weight_lbs}
-            className="flex-1 py-3 rounded-md font-mono text-xs uppercase tracking-widest"
-            style={{ background: 'var(--accent)', color: 'var(--bg-base)', border: 'none', cursor: 'pointer', borderRadius: 'var(--r-sm)', opacity: (loading || !form.name || !form.age || !totalInches || !form.weight_lbs) ? 0.5 : 1 }}
+            style={{ flex: 1, padding: '14px', background: 'var(--text-primary)', color: '#000000', border: '1px solid var(--text-primary)', borderRadius: '32px', cursor: 'pointer', fontFamily: DIN_BOLD, fontWeight: 700, fontSize: '11px', letterSpacing: '1.17px', textTransform: 'uppercase', opacity: (loading || !form.name || !form.age || !totalInches || !form.weight_lbs) ? 0.35 : 1 }}
           >
             {loading ? 'Saving...' : 'Continue'}
           </button>

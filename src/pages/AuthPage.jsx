@@ -1,6 +1,9 @@
 import { useState } from 'react'
 import { signIn, signUp } from '../services/auth'
 
+const DIN = "'D-DIN', Arial, Verdana, sans-serif"
+const DIN_BOLD = "'D-DIN-Bold', 'D-DIN', Arial, Verdana, sans-serif"
+
 export default function AuthPage() {
   const [isLogin, setIsLogin] = useState(true)
   const [email, setEmail] = useState('')
@@ -39,23 +42,39 @@ export default function AuthPage() {
     }
   }
 
+  const inputStyle = {
+    width: '100%',
+    padding: '14px 16px',
+    background: 'rgba(240,240,250,0.05)',
+    border: '1px solid rgba(240,240,250,0.2)',
+    borderRadius: '4px',
+    color: 'var(--text-primary)',
+    fontFamily: DIN,
+    fontSize: '13px',
+    letterSpacing: '0.02em',
+    textTransform: 'none',
+    outline: 'none',
+  }
+
   return (
-    <div className="min-h-screen flex flex-col items-center justify-center px-6" style={{ background: 'var(--bg-base)' }}>
-      <h1 className="font-bebas text-5xl tracking-wider mb-2" style={{ color: 'var(--accent)' }}>
-        MACRO HACKER
-      </h1>
-      <p className="font-mono text-[10px] uppercase tracking-widest mb-12" style={{ color: 'var(--text-muted)' }}>
+    <div style={{ minHeight: '100vh', display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', padding: '0 24px', background: 'var(--bg-base)' }}>
+      <div style={{ marginBottom: '8px' }}>
+        <h1 style={{ fontFamily: DIN_BOLD, fontSize: '42px', fontWeight: 700, letterSpacing: '0.96px', textTransform: 'uppercase', color: 'var(--text-primary)', lineHeight: 1, textAlign: 'center' }}>
+          Macro Hacker
+        </h1>
+      </div>
+      <p style={{ fontFamily: DIN, fontSize: '10px', letterSpacing: '1.17px', textTransform: 'uppercase', color: 'var(--text-muted)', marginBottom: '48px', textAlign: 'center' }}>
         Precision Nutrition Tracking
       </p>
 
-      <form onSubmit={handleSubmit} className="w-full max-w-sm flex flex-col gap-4">
+      <form onSubmit={handleSubmit} style={{ width: '100%', maxWidth: '360px', display: 'flex', flexDirection: 'column', gap: '12px' }}>
         {error && (
-          <div className="text-xs font-mono p-3" style={{ color: 'var(--status-over)', background: 'rgba(255,107,107,0.1)', borderRadius: 'var(--r-sm)', border: '1px solid rgba(255,107,107,0.2)' }}>
+          <div style={{ fontFamily: DIN, fontSize: '11px', letterSpacing: '0.5px', padding: '12px 14px', color: 'var(--status-over)', background: 'rgba(255,64,64,0.08)', borderRadius: '4px', border: '1px solid rgba(255,64,64,0.2)', textTransform: 'none' }}>
             {error}
           </div>
         )}
         {success && (
-          <div className="text-xs font-mono p-3" style={{ color: 'var(--accent)', background: 'var(--accent-dim)', borderRadius: 'var(--r-sm)', border: '1px solid rgba(200,241,53,0.2)' }}>
+          <div style={{ fontFamily: DIN, fontSize: '11px', letterSpacing: '0.5px', padding: '12px 14px', color: 'var(--text-primary)', background: 'var(--ghost-bg)', borderRadius: '4px', border: '1px solid var(--ghost-border)', textTransform: 'none' }}>
             {success}
           </div>
         )}
@@ -66,8 +85,7 @@ export default function AuthPage() {
           value={email}
           onChange={(e) => setEmail(e.target.value)}
           required
-          className="w-full px-4 py-3 text-sm outline-none"
-          style={{ background: 'var(--bg-surface)', border: '1px solid var(--border)', borderRadius: 'var(--r-sm)', color: 'var(--text-primary)' }}
+          style={inputStyle}
         />
         <input
           type="password"
@@ -76,20 +94,26 @@ export default function AuthPage() {
           onChange={(e) => setPassword(e.target.value)}
           required
           minLength={6}
-          className="w-full px-4 py-3 text-sm outline-none"
-          style={{ background: 'var(--bg-surface)', border: '1px solid var(--border)', borderRadius: 'var(--r-sm)', color: 'var(--text-primary)' }}
+          style={inputStyle}
         />
 
         <button
           type="submit"
           disabled={loading}
-          className="w-full py-3 font-mono text-xs uppercase tracking-widest"
           style={{
-            background: loading ? 'var(--bg-elevated)' : 'var(--accent)',
-            color: loading ? 'var(--text-muted)' : 'var(--bg-base)',
-            border: 'none',
+            width: '100%',
+            padding: '14px',
+            background: loading ? 'var(--ghost-bg)' : 'var(--text-primary)',
+            color: loading ? 'var(--text-muted)' : '#000000',
+            border: loading ? '1px solid var(--ghost-border)' : '1px solid var(--text-primary)',
+            borderRadius: '32px',
             cursor: loading ? 'not-allowed' : 'pointer',
-            borderRadius: 'var(--r-sm)',
+            fontFamily: DIN_BOLD,
+            fontWeight: 700,
+            fontSize: '11px',
+            letterSpacing: '1.17px',
+            textTransform: 'uppercase',
+            marginTop: '4px',
           }}
         >
           {loading ? 'Please wait...' : isLogin ? 'Log In' : 'Create Account'}
@@ -98,8 +122,7 @@ export default function AuthPage() {
         <button
           type="button"
           onClick={() => { setIsLogin(!isLogin); setError(null); setSuccess(null) }}
-          className="font-mono text-[10px] uppercase tracking-widest"
-          style={{ background: 'none', border: 'none', color: 'var(--text-secondary)', cursor: 'pointer' }}
+          style={{ background: 'none', border: 'none', color: 'var(--text-muted)', cursor: 'pointer', fontFamily: DIN, fontSize: '10px', letterSpacing: '1px', textTransform: 'uppercase', marginTop: '4px' }}
         >
           {isLogin ? "Don't have an account? Sign up" : 'Already have an account? Log in'}
         </button>

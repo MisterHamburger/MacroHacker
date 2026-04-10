@@ -5,6 +5,9 @@ import { updateProfile } from '../services/profile'
 import { calculateTargets } from '../services/macros'
 import { signOut } from '../services/auth'
 
+const DIN = "'D-DIN', Arial, Verdana, sans-serif"
+const DIN_BOLD = "'D-DIN-Bold', 'D-DIN', Arial, Verdana, sans-serif"
+
 export default function SettingsPage() {
   const { user } = useAuth()
   const { profile, refresh } = useProfile()
@@ -29,10 +32,8 @@ export default function SettingsPage() {
 
   if (!form) {
     return (
-      <div className="flex items-center justify-center h-64">
-        <span className="font-mono text-xs uppercase tracking-widest" style={{ color: 'var(--text-muted)' }}>
-          Loading...
-        </span>
+      <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', height: '256px' }}>
+        <span style={{ fontFamily: DIN, fontSize: '9px', letterSpacing: '1.17px', textTransform: 'uppercase', color: 'var(--text-muted)' }}>Loading...</span>
       </div>
     )
   }
@@ -75,93 +76,76 @@ export default function SettingsPage() {
   }
 
   const inputStyle = {
-    background: 'var(--bg-surface)',
-    border: '1px solid var(--border)',
-    borderRadius: 'var(--r-sm)',
+    width: '100%',
+    padding: '12px 14px',
+    background: 'rgba(240,240,250,0.05)',
+    border: '1px solid rgba(240,240,250,0.15)',
+    borderRadius: '4px',
+    color: 'var(--text-primary)',
+    fontFamily: DIN,
+    fontSize: '13px',
+    letterSpacing: '0.02em',
+    textTransform: 'none',
+    outline: 'none',
+  }
+
+  const labelStyle = {
+    display: 'block',
+    fontFamily: DIN,
+    fontSize: '8px',
+    letterSpacing: '1.17px',
+    textTransform: 'uppercase',
+    color: 'var(--text-muted)',
+    marginBottom: '6px',
   }
 
   return (
-    <div className="pb-24 pt-6 px-4">
-      <h2 className="font-bebas text-3xl mb-6" style={{ color: 'var(--text-primary)' }}>Settings</h2>
+    <div style={{ paddingTop: '28px', paddingBottom: '96px', paddingLeft: '16px', paddingRight: '16px' }}>
+      <div style={{ fontFamily: DIN, fontSize: '8px', letterSpacing: '1.17px', textTransform: 'uppercase', color: 'var(--text-muted)', marginBottom: '6px' }}>
+        Profile
+      </div>
+      <h2 style={{ fontFamily: DIN_BOLD, fontWeight: 700, fontSize: '36px', letterSpacing: '0.96px', textTransform: 'uppercase', color: 'var(--text-primary)', lineHeight: 1, marginBottom: '32px' }}>
+        Settings
+      </h2>
 
-      <div className="flex flex-col gap-4">
+      <div style={{ display: 'flex', flexDirection: 'column', gap: '16px' }}>
         <div>
-          <label className="font-mono text-[10px] uppercase tracking-widest block mb-1" style={{ color: 'var(--text-muted)' }}>Name</label>
-          <input
-            type="text"
-            value={form.name}
-            onChange={(e) => setForm({ ...form, name: e.target.value })}
-            className="w-full px-4 py-3 text-sm rounded-md outline-none"
-            style={inputStyle}
-          />
+          <label style={labelStyle}>Name</label>
+          <input type="text" value={form.name} onChange={(e) => setForm({ ...form, name: e.target.value })} style={inputStyle} />
         </div>
 
-        <div className="grid grid-cols-2 gap-2">
+        <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '8px' }}>
           <div>
-            <label className="font-mono text-[10px] uppercase tracking-widest block mb-1" style={{ color: 'var(--text-muted)' }}>Age</label>
-            <input
-              type="number"
-              value={form.age}
-              onChange={(e) => setForm({ ...form, age: e.target.value })}
-              className="w-full px-4 py-3 text-sm rounded-md outline-none"
-              style={inputStyle}
-            />
+            <label style={labelStyle}>Age</label>
+            <input type="number" value={form.age} onChange={(e) => setForm({ ...form, age: e.target.value })} style={inputStyle} />
           </div>
           <div>
-            <label className="font-mono text-[10px] uppercase tracking-widest block mb-1" style={{ color: 'var(--text-muted)' }}>Sex</label>
-            <select
-              value={form.sex}
-              onChange={(e) => setForm({ ...form, sex: e.target.value })}
-              className="w-full px-4 py-3 text-sm rounded-md outline-none"
-              style={inputStyle}
-            >
+            <label style={labelStyle}>Sex</label>
+            <select value={form.sex} onChange={(e) => setForm({ ...form, sex: e.target.value })} style={{ ...inputStyle, cursor: 'pointer' }}>
               <option value="male">Male</option>
               <option value="female">Female</option>
             </select>
           </div>
         </div>
 
-        <div className="grid grid-cols-3 gap-2">
+        <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr 1fr', gap: '8px' }}>
           <div>
-            <label className="font-mono text-[10px] uppercase tracking-widest block mb-1" style={{ color: 'var(--text-muted)' }}>Feet</label>
-            <input
-              type="number"
-              value={form.height_feet}
-              onChange={(e) => setForm({ ...form, height_feet: e.target.value })}
-              className="w-full px-4 py-3 text-sm rounded-md outline-none"
-              style={inputStyle}
-            />
+            <label style={labelStyle}>Feet</label>
+            <input type="number" value={form.height_feet} onChange={(e) => setForm({ ...form, height_feet: e.target.value })} style={inputStyle} />
           </div>
           <div>
-            <label className="font-mono text-[10px] uppercase tracking-widest block mb-1" style={{ color: 'var(--text-muted)' }}>Inches</label>
-            <input
-              type="number"
-              value={form.height_inches_rem}
-              onChange={(e) => setForm({ ...form, height_inches_rem: e.target.value })}
-              className="w-full px-4 py-3 text-sm rounded-md outline-none"
-              style={inputStyle}
-            />
+            <label style={labelStyle}>Inches</label>
+            <input type="number" value={form.height_inches_rem} onChange={(e) => setForm({ ...form, height_inches_rem: e.target.value })} style={inputStyle} />
           </div>
           <div>
-            <label className="font-mono text-[10px] uppercase tracking-widest block mb-1" style={{ color: 'var(--text-muted)' }}>Weight</label>
-            <input
-              type="number"
-              value={form.weight_lbs}
-              onChange={(e) => setForm({ ...form, weight_lbs: e.target.value })}
-              className="w-full px-4 py-3 text-sm rounded-md outline-none"
-              style={inputStyle}
-            />
+            <label style={labelStyle}>Weight</label>
+            <input type="number" value={form.weight_lbs} onChange={(e) => setForm({ ...form, weight_lbs: e.target.value })} style={inputStyle} />
           </div>
         </div>
 
         <div>
-          <label className="font-mono text-[10px] uppercase tracking-widest block mb-1" style={{ color: 'var(--text-muted)' }}>Activity Level</label>
-          <select
-            value={form.activity_level}
-            onChange={(e) => setForm({ ...form, activity_level: e.target.value })}
-            className="w-full px-4 py-3 text-sm rounded-md outline-none"
-            style={inputStyle}
-          >
+          <label style={labelStyle}>Activity Level</label>
+          <select value={form.activity_level} onChange={(e) => setForm({ ...form, activity_level: e.target.value })} style={{ ...inputStyle, cursor: 'pointer' }}>
             <option value="sedentary">Sedentary</option>
             <option value="light">Light</option>
             <option value="moderate">Moderate</option>
@@ -171,13 +155,8 @@ export default function SettingsPage() {
         </div>
 
         <div>
-          <label className="font-mono text-[10px] uppercase tracking-widest block mb-1" style={{ color: 'var(--text-muted)' }}>Goal</label>
-          <select
-            value={form.goal}
-            onChange={(e) => setForm({ ...form, goal: e.target.value })}
-            className="w-full px-4 py-3 text-sm rounded-md outline-none"
-            style={inputStyle}
-          >
+          <label style={labelStyle}>Goal</label>
+          <select value={form.goal} onChange={(e) => setForm({ ...form, goal: e.target.value })} style={{ ...inputStyle, cursor: 'pointer' }}>
             <option value="cut">Cut</option>
             <option value="recomp">Recomp</option>
             <option value="bulk">Bulk</option>
@@ -185,7 +164,7 @@ export default function SettingsPage() {
         </div>
 
         {message && (
-          <div className="font-mono text-[10px] uppercase tracking-widest" style={{ color: message === 'Saved' ? 'var(--accent)' : 'var(--status-over)' }}>
+          <div style={{ fontFamily: DIN, fontSize: '9px', letterSpacing: '1px', textTransform: 'uppercase', color: message === 'Saved' ? 'var(--text-primary)' : 'var(--status-over)' }}>
             {message}
           </div>
         )}
@@ -193,16 +172,14 @@ export default function SettingsPage() {
         <button
           onClick={handleSave}
           disabled={saving}
-          className="w-full py-3 rounded-md font-mono text-xs uppercase tracking-widest"
-          style={{ background: 'var(--accent)', color: 'var(--bg-base)', border: 'none', cursor: 'pointer', borderRadius: 'var(--r-sm)', opacity: saving ? 0.5 : 1 }}
+          style={{ width: '100%', padding: '14px', background: saving ? 'var(--ghost-bg)' : 'var(--text-primary)', color: saving ? 'var(--text-muted)' : '#000000', border: `1px solid ${saving ? 'var(--ghost-border)' : 'var(--text-primary)'}`, borderRadius: '32px', cursor: saving ? 'not-allowed' : 'pointer', fontFamily: DIN_BOLD, fontWeight: 700, fontSize: '11px', letterSpacing: '1.17px', textTransform: 'uppercase', opacity: saving ? 0.5 : 1 }}
         >
           {saving ? 'Saving...' : 'Save & Recalculate'}
         </button>
 
         <button
           onClick={signOut}
-          className="w-full py-3 rounded-md font-mono text-xs uppercase tracking-widest mt-4"
-          style={{ background: 'transparent', color: 'var(--status-over)', border: '1px solid var(--border)', cursor: 'pointer', borderRadius: 'var(--r-sm)' }}
+          style={{ width: '100%', padding: '14px', background: 'var(--ghost-bg)', color: 'var(--status-over)', border: '1px solid rgba(255,64,64,0.3)', borderRadius: '32px', cursor: 'pointer', fontFamily: DIN_BOLD, fontWeight: 700, fontSize: '11px', letterSpacing: '1.17px', textTransform: 'uppercase', marginTop: '8px' }}
         >
           Log Out
         </button>
