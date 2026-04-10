@@ -289,7 +289,7 @@ export async function sendMessage({ messages, profile, totals, entries, recentWo
     },
     body: JSON.stringify({
       model: MODEL,
-      max_tokens: 2048,
+      max_tokens: 4096,
       system,
       messages: (() => {
         // Map to Anthropic format
