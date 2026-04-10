@@ -28,6 +28,17 @@ export default function App() {
     return <AuthPage />
   }
 
+  // If user is logged in but profile is null, it's still loading — don't flash onboarding
+  if (!profile) {
+    return (
+      <div className="min-h-screen flex items-center justify-center" style={{ background: 'var(--bg-base)' }}>
+        <span className="font-mono text-xs uppercase tracking-widest" style={{ color: 'var(--text-muted)' }}>
+          Loading...
+        </span>
+      </div>
+    )
+  }
+
   if (!isBasicProfileComplete(profile)) {
     return <OnboardingPage onComplete={refresh} />
   }
