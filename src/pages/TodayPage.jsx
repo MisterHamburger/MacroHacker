@@ -2,7 +2,7 @@ import { useState, useEffect, useRef, useCallback } from 'react'
 import { useAuth } from '../hooks/useAuth'
 import { useProfile } from '../hooks/useProfile'
 import { useDailyLog } from '../hooks/useDailyLog'
-import { sendMessage, parseActions } from '../services/coach'
+import { sendMessage, parseActions, generateDailyOpening } from '../services/coach'
 import {
   getChatMessages, saveChatMessage, saveWorkoutLog,
   getRecentWorkouts, getTodayWorkout, addFoodEntry, getOrCreateDailyLog
@@ -103,12 +103,33 @@ export default function TodayPage() {
     daily_carbs: profile.daily_carbs || 200,
   } : { daily_calories: 2000, daily_protein: 150, daily_fat: 65, daily_carbs: 200 }
 
+  const openingFiredRef = useRef(false)
+
   useEffect(() => {
-    if (!user) return
-    getChatMessages(user.id, TODAY).then(setMessages)
-    getRecentWorkouts(user.id).then(setRecentWorkouts)
-    getTodayWorkout(user.id, TODAY).then(setTodayWorkout)
-  }, [user])
+    if (!user || !profile) return
+    Promise.all([
+      getChatMessages(user.id, TODAY),
+      getRecentWorkouts(user.id),
+      getTodayWorkout(user.id, TODAY),
+    ]).then(([msgs, workouts, workout]) => {
+      setMessages(msgs.filter(m => m.content !== '__opening__'))
+      setRecentWorkouts(workouts)
+      setTodayWorkout(workout)
+
+      // Auto-fire opening if no chat yet today
+      if (msgs.length === 0 && !openingFiredRef.current) {
+        openingFiredRef.current = true
+        generateDailyOpening({ profile, totals, entries: [], recentWorkouts: workouts, todayWorkout: workout })
+          .then(async (text) => {
+            const msg = { role: 'assistant', content: text, created_at: new Date().toISOString() }
+            setMessages([msg])
+            await saveChatMessage(user.id, TODAY, 'user', '__opening__')
+            await saveChatMessage(user.id, TODAY, 'assistant', text)
+          })
+          .catch(err => console.error('Opening failed:', err))
+      }
+    })
+  }, [user, profile])
 
   useEffect(() => {
     bottomRef.current?.scrollIntoView({ behavior: 'smooth' })

@@ -62,6 +62,30 @@ For target update: <action>{"type":"update_targets","daily_calories":0,"daily_pr
 Only include action blocks when actually logging something. Never include them in conversational replies.`
 }
 
+export async function generateDailyOpening({ profile, totals, entries, recentWorkouts, todayWorkout }) {
+  const system = buildSystemPrompt({ profile, totals, entries, recentWorkouts, todayWorkout })
+  const trigger = `Good morning. Give me my daily briefing — today's date, what workout you'd expect based on my recent pattern, today's calorie target, and a one-line prompt to get started. Keep it under 4 lines. No fluff.`
+
+  const res = await fetch(API_URL, {
+    method: 'POST',
+    headers: {
+      'Content-Type': 'application/json',
+      'x-api-key': API_KEY,
+      'anthropic-version': '2023-06-01',
+      'anthropic-dangerous-direct-browser-access': 'true',
+    },
+    body: JSON.stringify({
+      model: MODEL,
+      max_tokens: 256,
+      system,
+      messages: [{ role: 'user', content: trigger }],
+    }),
+  })
+  if (!res.ok) throw new Error(`Opening error: ${res.status}`)
+  const data = await res.json()
+  return data.content[0].text
+}
+
 export function parseActions(text) {
   const actions = []
   const actionRegex = /<action>([\s\S]*?)<\/action>/g
