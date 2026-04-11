@@ -15,6 +15,35 @@ const TODAY_LABEL = new Date().toLocaleDateString('en-US', { weekday: 'long', mo
 const DIN = "'D-DIN', Arial, Verdana, sans-serif"
 const DIN_BOLD = "'D-DIN-Bold', 'D-DIN', Arial, Verdana, sans-serif"
 
+function IconMic({ active }) {
+  const c = active ? 'var(--text-primary)' : 'var(--text-muted)'
+  return (
+    <svg width="16" height="16" viewBox="0 0 16 16" fill="none" xmlns="http://www.w3.org/2000/svg">
+      <rect x="5.5" y="1" width="5" height="8" rx="2.5" stroke={c} strokeWidth="1.25"/>
+      <path d="M2.5 7.5C2.5 10.538 4.962 13 8 13C11.038 13 13.5 10.538 13.5 7.5" stroke={c} strokeWidth="1.25" strokeLinecap="round"/>
+      <line x1="8" y1="13" x2="8" y2="15.5" stroke={c} strokeWidth="1.25" strokeLinecap="round"/>
+      <line x1="5.5" y1="15.5" x2="10.5" y2="15.5" stroke={c} strokeWidth="1.25" strokeLinecap="round"/>
+    </svg>
+  )
+}
+
+function IconStop() {
+  return (
+    <svg width="16" height="16" viewBox="0 0 16 16" fill="none" xmlns="http://www.w3.org/2000/svg">
+      <rect x="3.5" y="3.5" width="9" height="9" rx="1" stroke="var(--text-primary)" strokeWidth="1.25"/>
+    </svg>
+  )
+}
+
+function IconCamera() {
+  return (
+    <svg width="17" height="16" viewBox="0 0 17 16" fill="none" xmlns="http://www.w3.org/2000/svg">
+      <path d="M6 2.5L5 4H2.5C1.948 4 1.5 4.448 1.5 5V13C1.5 13.552 1.948 14 2.5 14H14.5C15.052 14 15.5 13.552 15.5 13V5C15.5 4.448 15.052 4 14.5 4H12L11 2.5H6Z" stroke="var(--text-muted)" strokeWidth="1.25" strokeLinejoin="round"/>
+      <circle cx="8.5" cy="9" r="2.5" stroke="var(--text-muted)" strokeWidth="1.25"/>
+    </svg>
+  )
+}
+
 function MacroBar({ totals, targets }) {
   const pct = (val, target) => target > 0 ? Math.min((val / target) * 100, 100) : 0
   const over = (val, target) => target > 0 && val > target
@@ -337,8 +366,8 @@ export default function TodayPage() {
           onDragLeave={() => setDragOver(false)}
           onDrop={handleDrop}
           style={{
-            background: dragOver ? 'rgba(240,240,250,0.15)' : 'var(--ghost-bg)',
-            border: `1px solid ${dragOver ? 'var(--ghost-border)' : 'rgba(240,240,250,0.15)'}`,
+            background: dragOver ? 'rgba(240,240,250,0.18)' : 'rgba(240,240,250,0.07)',
+            border: `1px solid ${dragOver ? 'var(--ghost-border)' : 'rgba(240,240,250,0.3)'}`,
             borderRadius: '4px',
             padding: '10px 12px',
             display: 'flex',
@@ -354,15 +383,19 @@ export default function TodayPage() {
             onPaste={handlePaste}
             placeholder="Log food or workout..."
             rows={1}
+            autoComplete="off"
+            autoCorrect="off"
+            autoCapitalize="off"
+            spellCheck={false}
             style={{ flex: 1, background: 'none', border: 'none', outline: 'none', resize: 'none', fontSize: '13px', color: 'var(--text-primary)', fontFamily: DIN, lineHeight: '1.5', maxHeight: '120px', overflow: 'auto', textTransform: 'none', letterSpacing: '0.02em' }}
             onInput={e => { e.target.style.height = 'auto'; e.target.style.height = Math.min(e.target.scrollHeight, 120) + 'px' }}
           />
           <div style={{ display: 'flex', gap: '6px', alignItems: 'center', flexShrink: 0 }}>
-            <button onClick={toggleVoice} style={{ background: listening ? 'rgba(240,240,250,0.15)' : 'none', border: 'none', cursor: 'pointer', padding: '4px', borderRadius: '4px', color: listening ? 'var(--accent)' : 'var(--text-muted)', fontSize: '15px', lineHeight: 1 }}>
-              {listening ? '⏹' : '🎤'}
+            <button onClick={toggleVoice} style={{ background: listening ? 'rgba(240,240,250,0.15)' : 'none', border: 'none', cursor: 'pointer', padding: '6px', borderRadius: '4px', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+              {listening ? <IconStop /> : <IconMic active={false} />}
             </button>
-            <label style={{ cursor: 'pointer', padding: '4px', color: 'var(--text-muted)', fontSize: '15px', lineHeight: 1 }}>
-              📷<input type="file" accept="image/*" capture="environment" onChange={handlePhoto} style={{ display: 'none' }} />
+            <label style={{ cursor: 'pointer', padding: '6px', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+              <IconCamera /><input type="file" accept="image/*" capture="environment" onChange={handlePhoto} style={{ display: 'none' }} />
             </label>
             <button
               onClick={() => handleSend()}
