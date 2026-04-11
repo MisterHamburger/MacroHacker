@@ -49,7 +49,7 @@ export default function App() {
 
   return (
     <div className="min-h-screen" style={{ background: 'var(--bg-base)' }}>
-      <div className="max-w-lg mx-auto">
+      <div style={{ maxWidth: '768px', margin: '0 auto' }}>
         <Routes>
           <Route path="/" element={<TodayPage />} />
           <Route path="/history" element={<HistoryPage />} />

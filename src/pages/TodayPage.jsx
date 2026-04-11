@@ -10,39 +10,64 @@ import {
 import { updateProfile } from '../services/profile'
 
 const TODAY = new Date().toISOString().split('T')[0]
-const TODAY_LABEL = new Date().toLocaleDateString('en-US', { weekday: 'long', month: 'long', day: 'numeric' }).toUpperCase()
+const TODAY_LABEL = new Date().toLocaleDateString('en-US', { weekday: 'long', month: 'long', day: 'numeric' })
 
 const DIN = "'D-DIN', Arial, Verdana, sans-serif"
 const DIN_BOLD = "'D-DIN-Bold', 'D-DIN', Arial, Verdana, sans-serif"
 
-function IconMic({ active }) {
-  const c = active ? 'var(--text-primary)' : 'var(--text-muted)'
+// ─── Icons ───────────────────────────────────────────────────────────────────
+
+function IconPlus() {
   return (
-    <svg width="16" height="16" viewBox="0 0 16 16" fill="none" xmlns="http://www.w3.org/2000/svg">
-      <rect x="5.5" y="1" width="5" height="8" rx="2.5" stroke={c} strokeWidth="1.25"/>
-      <path d="M2.5 7.5C2.5 10.538 4.962 13 8 13C11.038 13 13.5 10.538 13.5 7.5" stroke={c} strokeWidth="1.25" strokeLinecap="round"/>
-      <line x1="8" y1="13" x2="8" y2="15.5" stroke={c} strokeWidth="1.25" strokeLinecap="round"/>
-      <line x1="5.5" y1="15.5" x2="10.5" y2="15.5" stroke={c} strokeWidth="1.25" strokeLinecap="round"/>
+    <svg width="20" height="20" viewBox="0 0 20 20" fill="none">
+      <circle cx="10" cy="10" r="9" stroke="rgba(240,240,250,0.4)" strokeWidth="1.25"/>
+      <line x1="10" y1="5.5" x2="10" y2="14.5" stroke="rgba(240,240,250,0.7)" strokeWidth="1.5" strokeLinecap="round"/>
+      <line x1="5.5" y1="10" x2="14.5" y2="10" stroke="rgba(240,240,250,0.7)" strokeWidth="1.5" strokeLinecap="round"/>
+    </svg>
+  )
+}
+
+function IconMic({ active }) {
+  const c = active ? 'var(--text-primary)' : 'rgba(240,240,250,0.55)'
+  return (
+    <svg width="18" height="18" viewBox="0 0 18 18" fill="none">
+      <rect x="6" y="1.5" width="6" height="9" rx="3" stroke={c} strokeWidth="1.3"/>
+      <path d="M3 9C3 12.314 5.686 15 9 15C12.314 15 15 12.314 15 9" stroke={c} strokeWidth="1.3" strokeLinecap="round"/>
+      <line x1="9" y1="15" x2="9" y2="17.5" stroke={c} strokeWidth="1.3" strokeLinecap="round"/>
+      <line x1="6.5" y1="17.5" x2="11.5" y2="17.5" stroke={c} strokeWidth="1.3" strokeLinecap="round"/>
     </svg>
   )
 }
 
 function IconStop() {
   return (
-    <svg width="16" height="16" viewBox="0 0 16 16" fill="none" xmlns="http://www.w3.org/2000/svg">
-      <rect x="3.5" y="3.5" width="9" height="9" rx="1" stroke="var(--text-primary)" strokeWidth="1.25"/>
+    <svg width="18" height="18" viewBox="0 0 18 18" fill="none">
+      <rect x="4" y="4" width="10" height="10" rx="1.5" fill="rgba(240,240,250,0.7)"/>
     </svg>
   )
 }
 
 function IconCamera() {
   return (
-    <svg width="17" height="16" viewBox="0 0 17 16" fill="none" xmlns="http://www.w3.org/2000/svg">
-      <path d="M6 2.5L5 4H2.5C1.948 4 1.5 4.448 1.5 5V13C1.5 13.552 1.948 14 2.5 14H14.5C15.052 14 15.5 13.552 15.5 13V5C15.5 4.448 15.052 4 14.5 4H12L11 2.5H6Z" stroke="var(--text-muted)" strokeWidth="1.25" strokeLinejoin="round"/>
-      <circle cx="8.5" cy="9" r="2.5" stroke="var(--text-muted)" strokeWidth="1.25"/>
+    <svg width="28" height="28" viewBox="0 0 28 28" fill="none">
+      <rect x="3" y="7" width="22" height="16" rx="2.5" stroke="rgba(240,240,250,0.8)" strokeWidth="1.4"/>
+      <circle cx="14" cy="15" r="4" stroke="rgba(240,240,250,0.8)" strokeWidth="1.4"/>
+      <path d="M10 7L11.5 4.5H16.5L18 7" stroke="rgba(240,240,250,0.8)" strokeWidth="1.4" strokeLinecap="round" strokeLinejoin="round"/>
     </svg>
   )
 }
+
+function IconPhotos() {
+  return (
+    <svg width="28" height="28" viewBox="0 0 28 28" fill="none">
+      <rect x="3" y="5" width="22" height="18" rx="2.5" stroke="rgba(240,240,250,0.8)" strokeWidth="1.4"/>
+      <circle cx="9.5" cy="11" r="2" stroke="rgba(240,240,250,0.8)" strokeWidth="1.3"/>
+      <path d="M3 19L8 14L12 18L17 12L25 19" stroke="rgba(240,240,250,0.8)" strokeWidth="1.4" strokeLinecap="round" strokeLinejoin="round"/>
+    </svg>
+  )
+}
+
+// ─── Macro Bar ────────────────────────────────────────────────────────────────
 
 function MacroBar({ totals, targets }) {
   const pct = (val, target) => target > 0 ? Math.min((val / target) * 100, 100) : 0
@@ -54,11 +79,11 @@ function MacroBar({ totals, targets }) {
     { key: 'carbs', label: 'CARB', val: totals.carbs, target: targets.daily_carbs },
   ]
   return (
-    <div style={{ background: 'var(--bg-surface)', borderBottom: '1px solid var(--border)', padding: '12px 16px 10px', flexShrink: 0 }}>
+    <div style={{ borderBottom: '1px solid var(--border)', padding: '12px 20px 10px', flexShrink: 0 }}>
       <div style={{ display: 'grid', gridTemplateColumns: 'repeat(4,1fr)', gap: '8px', marginBottom: '10px' }}>
         {macros.map(({ key, label, val, target }) => (
           <div key={key} style={{ textAlign: 'center' }}>
-            <div style={{ fontFamily: DIN_BOLD, fontSize: '22px', lineHeight: 1, letterSpacing: '0.96px', color: over(val, target) ? 'var(--status-over)' : 'var(--text-primary)', fontWeight: 700 }}>
+            <div style={{ fontFamily: DIN_BOLD, fontSize: '22px', lineHeight: 1, letterSpacing: '0.5px', color: over(val, target) ? 'var(--status-over)' : 'var(--text-primary)', fontWeight: 700 }}>
               {val}
             </div>
             <div style={{ fontFamily: DIN, fontSize: '8px', letterSpacing: '1.17px', color: 'var(--text-muted)', textTransform: 'uppercase', marginTop: '3px' }}>
@@ -70,13 +95,15 @@ function MacroBar({ totals, targets }) {
       <div style={{ display: 'flex', gap: '4px' }}>
         {macros.map(({ key, val, target }) => (
           <div key={key} style={{ flex: 1, height: '2px', background: 'var(--border)', overflow: 'hidden' }}>
-            <div style={{ height: '100%', width: `${pct(val, target)}%`, background: over(val, target) ? 'var(--status-over)' : 'var(--accent)', transition: 'width 300ms' }} />
+            <div style={{ height: '100%', width: `${pct(val, target)}%`, background: over(val, target) ? 'var(--status-over)' : 'rgba(240,240,250,0.5)', transition: 'width 300ms' }} />
           </div>
         ))}
       </div>
     </div>
   )
 }
+
+// ─── Render markdown-ish text ─────────────────────────────────────────────────
 
 function renderText(text) {
   if (!text) return null
@@ -91,22 +118,38 @@ function renderText(text) {
   })
 }
 
+// ─── Message bubble ───────────────────────────────────────────────────────────
+
 function Message({ msg }) {
   const isUser = msg.role === 'user'
   const time = new Date(msg.created_at || Date.now()).toLocaleTimeString('en-US', { hour: 'numeric', minute: '2-digit' })
+
   return (
-    <div style={{ display: 'flex', flexDirection: 'column', alignItems: isUser ? 'flex-end' : 'flex-start', marginBottom: '20px', padding: '0 16px' }}>
+    <div style={{ display: 'flex', flexDirection: 'column', alignItems: isUser ? 'flex-end' : 'flex-start', marginBottom: '28px', padding: '0 20px' }}>
       {isUser ? (
-        <div style={{ background: 'var(--ghost-bg)', border: '1px solid var(--ghost-border)', borderRadius: '4px 4px 0 4px', padding: '10px 14px', maxWidth: '82%', fontSize: '13px', fontFamily: DIN, color: 'var(--text-primary)', lineHeight: '1.6', letterSpacing: '0.02em', textTransform: 'none' }}>
+        <div style={{
+          background: 'rgba(240,240,250,0.1)',
+          border: '1px solid rgba(240,240,250,0.14)',
+          borderRadius: '20px 20px 4px 20px',
+          padding: '12px 16px',
+          maxWidth: '82%',
+          fontSize: '16px',
+          fontFamily: DIN,
+          color: 'var(--text-primary)',
+          lineHeight: '1.55',
+          textTransform: 'none',
+          letterSpacing: '0.01em',
+          fontWeight: 400,
+        }}>
           {msg.imagePreview && (
-            <img src={msg.imagePreview} alt="food" style={{ width: '100%', maxWidth: '220px', borderRadius: '2px', display: 'block', marginBottom: msg.content ? '8px' : 0 }} />
+            <img src={msg.imagePreview} alt="food" style={{ width: '100%', maxWidth: '240px', borderRadius: '10px', display: 'block', marginBottom: msg.content ? '8px' : 0 }} />
           )}
           {msg.content && msg.content !== '[photo]' && msg.content}
         </div>
       ) : (
-        <div style={{ maxWidth: '94%' }}>
+        <div style={{ maxWidth: '96%' }}>
           {msg.actions?.length > 0 && (
-            <div style={{ borderLeft: '1px solid var(--ghost-border)', paddingLeft: '10px', marginBottom: '10px', fontFamily: DIN, fontSize: '9px', letterSpacing: '1.17px', textTransform: 'uppercase', color: 'var(--text-secondary)' }}>
+            <div style={{ borderLeft: '1px solid rgba(240,240,250,0.2)', paddingLeft: '12px', marginBottom: '10px', fontFamily: DIN, fontSize: '10px', letterSpacing: '1px', textTransform: 'uppercase', color: 'var(--text-secondary)' }}>
               {msg.actions.map((a, i) => (
                 <div key={i}>
                   {a.type === 'log_food' && `✓ Logged · ${a.totals?.calories || 0} cal`}
@@ -116,33 +159,104 @@ function Message({ msg }) {
               ))}
             </div>
           )}
-          <div style={{ fontSize: '13px', fontFamily: DIN, color: 'var(--text-primary)', lineHeight: '1.65', textTransform: 'none', letterSpacing: '0.02em' }}>
+          <div style={{
+            fontSize: '16px',
+            fontFamily: DIN,
+            color: 'var(--text-primary)',
+            lineHeight: '1.65',
+            textTransform: 'none',
+            letterSpacing: '0.01em',
+            fontWeight: 400,
+          }}>
             {renderText(msg.content)}
           </div>
         </div>
       )}
-      <div style={{ fontFamily: DIN, fontSize: '8px', color: 'var(--text-muted)', marginTop: '5px', letterSpacing: '1px', textTransform: 'uppercase' }}>
+      <div style={{ fontFamily: DIN, fontSize: '9px', color: 'rgba(240,240,250,0.2)', marginTop: '6px', letterSpacing: '0.8px', textTransform: 'uppercase' }}>
         {time}
       </div>
     </div>
   )
 }
 
+// ─── Add to Chat sheet ────────────────────────────────────────────────────────
+
+function MediaPicker({ onCamera, onPhotos, onClose }) {
+  return (
+    <>
+      {/* Backdrop */}
+      <div onClick={onClose} style={{ position: 'fixed', inset: 0, background: 'rgba(0,0,0,0.6)', zIndex: 100 }} />
+      {/* Sheet */}
+      <div style={{
+        position: 'fixed', bottom: 0, left: '50%', transform: 'translateX(-50%)',
+        width: '100%', maxWidth: '768px',
+        background: '#1a1a1a',
+        borderRadius: '20px 20px 0 0',
+        padding: '12px 20px 40px',
+        zIndex: 101,
+        animation: 'slideUp 200ms ease',
+      }}>
+        {/* Handle */}
+        <div style={{ width: '36px', height: '4px', background: 'rgba(240,240,250,0.2)', borderRadius: '2px', margin: '0 auto 16px' }} />
+
+        {/* Header row */}
+        <div style={{ display: 'flex', alignItems: 'center', marginBottom: '20px' }}>
+          <button onClick={onClose} style={{ background: 'rgba(240,240,250,0.1)', border: 'none', borderRadius: '50%', width: '32px', height: '32px', cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center', color: 'var(--text-primary)' }}>
+            <svg width="14" height="14" viewBox="0 0 14 14" fill="none">
+              <line x1="1" y1="1" x2="13" y2="13" stroke="rgba(240,240,250,0.7)" strokeWidth="1.5" strokeLinecap="round"/>
+              <line x1="13" y1="1" x2="1" y2="13" stroke="rgba(240,240,250,0.7)" strokeWidth="1.5" strokeLinecap="round"/>
+            </svg>
+          </button>
+          <div style={{ flex: 1, textAlign: 'center', fontFamily: DIN_BOLD, fontWeight: 700, fontSize: '15px', letterSpacing: '1px', textTransform: 'uppercase', color: 'var(--text-primary)', marginRight: '32px' }}>
+            Add to Chat
+          </div>
+        </div>
+
+        {/* Tiles */}
+        <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '12px' }}>
+          {[
+            { label: 'Camera', icon: <IconCamera />, action: onCamera },
+            { label: 'Photos', icon: <IconPhotos />, action: onPhotos },
+          ].map(({ label, icon, action }) => (
+            <button key={label} onClick={action} style={{
+              background: 'rgba(240,240,250,0.07)',
+              border: '1px solid rgba(240,240,250,0.1)',
+              borderRadius: '16px',
+              padding: '24px 16px 20px',
+              display: 'flex', flexDirection: 'column', alignItems: 'center', gap: '10px',
+              cursor: 'pointer',
+              color: 'var(--text-primary)',
+            }}>
+              {icon}
+              <span style={{ fontFamily: DIN, fontSize: '14px', letterSpacing: '0.5px', textTransform: 'uppercase', color: 'rgba(240,240,250,0.8)', fontWeight: 400 }}>{label}</span>
+            </button>
+          ))}
+        </div>
+      </div>
+    </>
+  )
+}
+
+// ─── Main page ────────────────────────────────────────────────────────────────
+
 export default function TodayPage() {
   const { user } = useAuth()
   const { profile, refresh: refreshProfile } = useProfile()
   const { log, entries, totals, refresh: refreshLog } = useDailyLog(TODAY)
   const [messages, setMessages] = useState([])
-  const [hasInput, setHasInput] = useState(false)   // for send button enabled state only
+  const [hasInput, setHasInput] = useState(false)
   const [sending, setSending] = useState(false)
   const [recentWorkouts, setRecentWorkouts] = useState([])
   const [todayWorkout, setTodayWorkout] = useState(null)
   const [listening, setListening] = useState(false)
+  const [showPicker, setShowPicker] = useState(false)
   const bottomRef = useRef(null)
   const recognitionRef = useRef(null)
-  const inputRef = useRef(null)                      // contentEditable div ref
+  const inputRef = useRef(null)
+  const cameraInputRef = useRef(null)
+  const photosInputRef = useRef(null)
 
-  // Restore draft on mount
+  // Restore draft
   useEffect(() => {
     const draft = localStorage.getItem('draft_input')
     if (draft && inputRef.current) {
@@ -198,7 +312,6 @@ export default function TodayPage() {
       setMessages(msgs.filter(m => m.content !== '__opening__'))
       setRecentWorkouts(workouts)
       setTodayWorkout(workout)
-
       if (msgs.length === 0 && !openingFiredRef.current) {
         openingFiredRef.current = true
         generateDailyOpening({ profile, totals, entries: [], recentWorkouts: workouts, todayWorkout: workout })
@@ -261,42 +374,31 @@ export default function TodayPage() {
   }, [sending, messages, profile, totals, entries, recentWorkouts, todayWorkout, log, user, refreshLog, refreshProfile])
 
   async function handlePhoto(e) {
-    const file = e.target.files[0]
+    const file = e.target.files?.[0]
     if (!file || sending) return
-    e.target.value = ''
+    if (e.target.value !== undefined) e.target.value = ''
+    setShowPicker(false)
 
     const reader = new FileReader()
     reader.onload = async (ev) => {
       const dataUrl = ev.target.result
       const base64 = dataUrl.split(',')[1]
       const mimeType = file.type || 'image/jpeg'
-
       const remaining = {
-        calories: (profile.daily_calories || 0) - totals.calories,
-        protein: (profile.daily_protein || 0) - totals.protein,
-        fat: (profile.daily_fat || 0) - totals.fat,
-        carbs: (profile.daily_carbs || 0) - totals.carbs,
+        calories: (targets.daily_calories || 0) - totals.calories,
+        protein: (targets.daily_protein || 0) - totals.protein,
+        fat: (targets.daily_fat || 0) - totals.fat,
+        carbs: (targets.daily_carbs || 0) - totals.carbs,
       }
-
       const promptText = `Remaining today: ${remaining.calories} cal, ${remaining.protein}g protein, ${remaining.fat}g fat, ${remaining.carbs}g carbs.`
-
-      const photoMsg = {
-        role: 'user',
-        content: promptText,
-        imageData: { base64, mimeType },
-        imagePreview: dataUrl,
-        created_at: new Date().toISOString(),
-      }
-
+      const photoMsg = { role: 'user', content: promptText, imageData: { base64, mimeType }, imagePreview: dataUrl, created_at: new Date().toISOString() }
       setSending(true)
       const optimisticMessages = [...messages, photoMsg]
       setMessages(optimisticMessages)
-
       try {
         await saveChatMessage(user.id, TODAY, 'user', '[photo] ' + promptText)
         const raw = await sendMessage({ messages: optimisticMessages, profile, totals, entries, recentWorkouts, todayWorkout })
         const { cleanText, actions } = parseActions(raw)
-
         for (const action of actions) {
           if (action.type === 'log_food') {
             const dailyLog = log || await getOrCreateDailyLog(user.id, TODAY)
@@ -309,7 +411,6 @@ export default function TodayPage() {
             getRecentWorkouts(user.id).then(setRecentWorkouts)
           }
         }
-
         const assistantMsg = { role: 'assistant', content: cleanText, actions, created_at: new Date().toISOString() }
         setMessages(prev => [...prev, assistantMsg])
         await saveChatMessage(user.id, TODAY, 'assistant', cleanText, actions.length ? actions : null)
@@ -343,13 +444,11 @@ export default function TodayPage() {
   }
 
   function handlePasteInInput(e) {
-    // Image paste
     const item = Array.from(e.clipboardData?.items || []).find(i => i.type.startsWith('image/'))
     if (item) {
       const file = item.getAsFile()
-      if (file) { e.preventDefault(); handlePhoto({ target: { files: [file], value: '' } }); return }
+      if (file) { e.preventDefault(); handlePhoto({ target: { files: [file] } }); return }
     }
-    // Text paste — strip rich formatting, insert plain text
     e.preventDefault()
     const text = e.clipboardData.getData('text/plain')
     document.execCommand('insertText', false, text)
@@ -362,9 +461,8 @@ export default function TodayPage() {
     setDragOver(false)
     const file = e.dataTransfer.files?.[0]
     if (!file || !file.type.startsWith('image/')) return
-    handlePhoto({ target: { files: [file], value: '' } })
+    handlePhoto({ target: { files: [file] } })
   }
-
 
   if (!profile) return null
 
@@ -372,40 +470,53 @@ export default function TodayPage() {
     <div style={{ display: 'flex', flexDirection: 'column', height: 'calc(100dvh - 64px)', background: 'var(--bg-base)' }}>
       <MacroBar totals={totals} targets={targets} />
 
-      {/* Chat area */}
-      <div style={{ flex: 1, overflowY: 'auto', paddingTop: '20px', paddingBottom: '8px' }}>
-        <div style={{ textAlign: 'center', fontFamily: DIN, fontSize: '8px', letterSpacing: '1.17px', textTransform: 'uppercase', color: 'var(--text-muted)', marginBottom: '24px' }}>
+      {/* Chat */}
+      <div style={{ flex: 1, overflowY: 'auto', paddingTop: '24px', paddingBottom: '8px' }}>
+        {/* Date label */}
+        <div style={{ textAlign: 'center', fontFamily: DIN, fontSize: '11px', letterSpacing: '0.5px', color: 'rgba(240,240,250,0.25)', marginBottom: '28px', textTransform: 'none' }}>
           {TODAY_LABEL}
         </div>
+
         {messages.length === 0 && (
-          <div style={{ textAlign: 'center', padding: '40px 32px', fontFamily: DIN, fontSize: '10px', letterSpacing: '1.17px', textTransform: 'uppercase', color: 'var(--text-muted)', lineHeight: '2' }}>
+          <div style={{ textAlign: 'center', padding: '40px 32px', fontFamily: DIN, fontSize: '15px', color: 'rgba(240,240,250,0.3)', lineHeight: '1.8', textTransform: 'none', letterSpacing: '0.01em' }}>
             Log food, record a workout,<br />or ask anything.
           </div>
         )}
+
         {messages.map((msg, i) => <Message key={i} msg={msg} />)}
+
         {sending && (
-          <div style={{ padding: '0 16px 16px', fontFamily: DIN, fontSize: '10px', letterSpacing: '0.3em', color: 'var(--text-muted)' }}>···</div>
+          <div style={{ padding: '0 20px 20px', fontFamily: DIN, fontSize: '22px', letterSpacing: '0.2em', color: 'rgba(240,240,250,0.3)', textTransform: 'none' }}>···</div>
         )}
         <div ref={bottomRef} />
       </div>
 
-      {/* Input bar */}
-      <div style={{ background: 'var(--bg-surface)', borderTop: '1px solid var(--border)', padding: '10px 16px', paddingBottom: 'calc(10px + env(safe-area-inset-bottom))', flexShrink: 0 }}>
+      {/* Input bar — Claude style */}
+      <div style={{ background: 'var(--bg-base)', borderTop: '1px solid rgba(240,240,250,0.07)', padding: '10px 16px', paddingBottom: 'calc(10px + env(safe-area-inset-bottom))', flexShrink: 0 }}>
         <div
           onDragOver={e => { e.preventDefault(); setDragOver(true) }}
           onDragLeave={() => setDragOver(false)}
           onDrop={handleDrop}
           style={{
-            background: dragOver ? 'rgba(240,240,250,0.18)' : 'rgba(240,240,250,0.07)',
-            border: `1px solid ${dragOver ? 'var(--ghost-border)' : 'rgba(240,240,250,0.3)'}`,
-            borderRadius: '4px',
-            padding: '10px 12px',
+            background: dragOver ? 'rgba(240,240,250,0.1)' : 'rgba(240,240,250,0.06)',
+            border: `1px solid ${dragOver ? 'rgba(240,240,250,0.35)' : 'rgba(240,240,250,0.12)'}`,
+            borderRadius: '24px',
+            padding: '10px 12px 10px 14px',
             display: 'flex',
             alignItems: 'flex-end',
             gap: '8px',
-            transition: 'background 150ms, border-color 150ms',
+            transition: 'all 150ms',
           }}
         >
+          {/* + button */}
+          <button
+            onClick={() => setShowPicker(true)}
+            style={{ background: 'none', border: 'none', cursor: 'pointer', padding: '2px', display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0, marginBottom: '1px' }}
+          >
+            <IconPlus />
+          </button>
+
+          {/* Text input */}
           <div
             ref={inputRef}
             contentEditable
@@ -413,39 +524,46 @@ export default function TodayPage() {
             onInput={onInputChange}
             onKeyDown={handleKeyDown}
             onPaste={handlePasteInInput}
-            data-placeholder="Log food or workout..."
-            style={{ flex: 1, background: 'none', border: 'none', outline: 'none', fontSize: '13px', color: 'var(--text-primary)', fontFamily: DIN, lineHeight: '1.5', maxHeight: '120px', overflow: 'auto', textTransform: 'none', letterSpacing: '0.02em', minHeight: '20px', wordBreak: 'break-word', whiteSpace: 'pre-wrap' }}
+            data-placeholder="Reply to coach..."
+            style={{ flex: 1, background: 'none', border: 'none', outline: 'none', fontSize: '16px', color: 'var(--text-primary)', fontFamily: DIN, lineHeight: '1.5', maxHeight: '140px', overflow: 'auto', textTransform: 'none', letterSpacing: '0.01em', minHeight: '24px', wordBreak: 'break-word', whiteSpace: 'pre-wrap', fontWeight: 400 }}
           />
-          <div style={{ display: 'flex', gap: '6px', alignItems: 'center', flexShrink: 0 }}>
-            <button onClick={toggleVoice} style={{ background: listening ? 'rgba(240,240,250,0.15)' : 'none', border: 'none', cursor: 'pointer', padding: '6px', borderRadius: '4px', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
-              {listening ? <IconStop /> : <IconMic active={false} />}
-            </button>
-            <label style={{ cursor: 'pointer', padding: '6px', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
-              <IconCamera /><input type="file" accept="image/*" capture="environment" onChange={handlePhoto} style={{ display: 'none' }} />
-            </label>
-            <button
-              onClick={() => handleSend()}
-              disabled={!hasInput || sending}
-              style={{
-                background: hasInput && !sending ? 'var(--text-primary)' : 'var(--ghost-bg)',
-                border: `1px solid ${hasInput && !sending ? 'var(--text-primary)' : 'var(--ghost-border)'}`,
-                borderRadius: '32px',
-                cursor: hasInput && !sending ? 'pointer' : 'default',
-                padding: '5px 16px',
-                fontFamily: DIN,
-                fontWeight: 700,
-                fontSize: '9px',
-                letterSpacing: '1.17px',
-                textTransform: 'uppercase',
-                color: hasInput && !sending ? '#000000' : 'var(--text-muted)',
-                transition: 'all 150ms',
-              }}
-            >
-              Send
-            </button>
-          </div>
+
+          {/* Voice button */}
+          <button
+            onClick={hasInput ? () => handleSend() : toggleVoice}
+            style={{
+              background: hasInput && !sending ? 'var(--text-primary)' : listening ? 'rgba(240,240,250,0.15)' : 'none',
+              border: hasInput && !sending ? 'none' : '1px solid rgba(240,240,250,0.2)',
+              borderRadius: '50%',
+              width: '34px', height: '34px',
+              cursor: 'pointer',
+              display: 'flex', alignItems: 'center', justifyContent: 'center',
+              flexShrink: 0,
+              transition: 'all 150ms',
+            }}
+          >
+            {hasInput && !sending
+              ? <svg width="16" height="16" viewBox="0 0 16 16" fill="none"><path d="M3 8L7 12L13 4" stroke="#000" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/></svg>
+              : listening
+                ? <IconStop />
+                : <IconMic active={false} />
+            }
+          </button>
         </div>
       </div>
+
+      {/* Hidden file inputs for camera/photos */}
+      <input ref={cameraInputRef} type="file" accept="image/*" capture="environment" onChange={handlePhoto} style={{ display: 'none' }} />
+      <input ref={photosInputRef} type="file" accept="image/*" onChange={handlePhoto} style={{ display: 'none' }} />
+
+      {/* Media picker sheet */}
+      {showPicker && (
+        <MediaPicker
+          onCamera={() => { setShowPicker(false); cameraInputRef.current?.click() }}
+          onPhotos={() => { setShowPicker(false); photosInputRef.current?.click() }}
+          onClose={() => setShowPicker(false)}
+        />
+      )}
     </div>
   )
 }

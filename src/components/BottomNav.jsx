@@ -15,7 +15,7 @@ export default function BottomNav() {
       className="fixed bottom-0 left-0 right-0 z-50"
       style={{ background: 'var(--bg-surface)', borderTop: '1px solid var(--border)' }}
     >
-      <div style={{ display: 'flex', justifyContent: 'space-around', alignItems: 'center', height: '64px', maxWidth: '512px', margin: '0 auto', paddingBottom: 'env(safe-area-inset-bottom)' }}>
+      <div style={{ display: 'flex', justifyContent: 'space-around', alignItems: 'center', height: '64px', maxWidth: '768px', margin: '0 auto', paddingBottom: 'env(safe-area-inset-bottom)' }}>
         {tabs.map((tab) => (
           <NavLink
             key={tab.to}

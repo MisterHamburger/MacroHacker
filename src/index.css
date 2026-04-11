@@ -62,6 +62,12 @@ input::placeholder, textarea::placeholder {
   font-size: 0.7em;
 }
 
+/* Sheet slide-up animation */
+@keyframes slideUp {
+  from { transform: translateX(-50%) translateY(100%); }
+  to   { transform: translateX(-50%) translateY(0); }
+}
+
 /* Placeholder for contentEditable input */
 [contenteditable][data-placeholder]:empty::before {
   content: attr(data-placeholder);
