@@ -7,12 +7,16 @@ export default defineConfig({
     react(),
     VitePWA({
       registerType: 'autoUpdate',
+      workbox: {
+        skipWaiting: true,
+        clientsClaim: true,
+      },
       manifest: {
         name: 'Macro Hacker',
         short_name: 'MacroHacker',
         description: 'AI-powered nutrition tracking',
-        theme_color: '#0a0a0a',
-        background_color: '#0a0a0a',
+        theme_color: '#000000',
+        background_color: '#000000',
         display: 'standalone',
         orientation: 'portrait',
         start_url: '/',
