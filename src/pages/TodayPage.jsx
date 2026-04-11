@@ -133,13 +133,39 @@ export default function TodayPage() {
   const { profile, refresh: refreshProfile } = useProfile()
   const { log, entries, totals, refresh: refreshLog } = useDailyLog(TODAY)
   const [messages, setMessages] = useState([])
-  const [input, setInput] = useState(() => localStorage.getItem('draft_input') || '')
+  const [hasInput, setHasInput] = useState(false)   // for send button enabled state only
   const [sending, setSending] = useState(false)
   const [recentWorkouts, setRecentWorkouts] = useState([])
   const [todayWorkout, setTodayWorkout] = useState(null)
   const [listening, setListening] = useState(false)
   const bottomRef = useRef(null)
   const recognitionRef = useRef(null)
+  const inputRef = useRef(null)                      // contentEditable div ref
+
+  // Restore draft on mount
+  useEffect(() => {
+    const draft = localStorage.getItem('draft_input')
+    if (draft && inputRef.current) {
+      inputRef.current.innerText = draft
+      setHasInput(true)
+    }
+  }, [])
+
+  function getInputText() {
+    return (inputRef.current?.innerText || '').replace(/\n+$/, '').trim()
+  }
+
+  function clearInput() {
+    if (inputRef.current) inputRef.current.innerText = ''
+    setHasInput(false)
+    localStorage.removeItem('draft_input')
+  }
+
+  function onInputChange() {
+    const val = getInputText()
+    setHasInput(!!val)
+    localStorage.setItem('draft_input', inputRef.current?.innerText || '')
+  }
 
   const targets = (() => {
     if (!profile) return { daily_calories: 2000, daily_protein: 150, daily_fat: 65, daily_carbs: 200 }
@@ -192,10 +218,9 @@ export default function TodayPage() {
   }, [messages])
 
   const handleSend = useCallback(async (text) => {
-    const content = (text || input).trim()
+    const content = (text || getInputText()).trim()
     if (!content || sending) return
-    setInput('')
-    localStorage.removeItem('draft_input')
+    clearInput()
     setSending(true)
     const userMsg = { role: 'user', content, created_at: new Date().toISOString() }
     const optimisticMessages = [...messages, userMsg]
@@ -233,7 +258,7 @@ export default function TodayPage() {
     } finally {
       setSending(false)
     }
-  }, [input, sending, messages, profile, totals, entries, recentWorkouts, todayWorkout, log, user, refreshLog, refreshProfile])
+  }, [sending, messages, profile, totals, entries, recentWorkouts, todayWorkout, log, user, refreshLog, refreshProfile])
 
   async function handlePhoto(e) {
     const file = e.target.files[0]
@@ -317,6 +342,19 @@ export default function TodayPage() {
     if (e.key === 'Enter' && !e.shiftKey) { e.preventDefault(); handleSend() }
   }
 
+  function handlePasteInInput(e) {
+    // Image paste
+    const item = Array.from(e.clipboardData?.items || []).find(i => i.type.startsWith('image/'))
+    if (item) {
+      const file = item.getAsFile()
+      if (file) { e.preventDefault(); handlePhoto({ target: { files: [file], value: '' } }); return }
+    }
+    // Text paste — strip rich formatting, insert plain text
+    e.preventDefault()
+    const text = e.clipboardData.getData('text/plain')
+    document.execCommand('insertText', false, text)
+  }
+
   const [dragOver, setDragOver] = useState(false)
 
   function handleDrop(e) {
@@ -327,14 +365,6 @@ export default function TodayPage() {
     handlePhoto({ target: { files: [file], value: '' } })
   }
 
-  function handlePaste(e) {
-    const item = Array.from(e.clipboardData?.items || []).find(i => i.type.startsWith('image/'))
-    if (!item) return
-    const file = item.getAsFile()
-    if (!file) return
-    e.preventDefault()
-    handlePhoto({ target: { files: [file], value: '' } })
-  }
 
   if (!profile) return null
 
@@ -376,19 +406,15 @@ export default function TodayPage() {
             transition: 'background 150ms, border-color 150ms',
           }}
         >
-          <textarea
-            value={input}
-            onChange={e => { setInput(e.target.value); localStorage.setItem('draft_input', e.target.value) }}
+          <div
+            ref={inputRef}
+            contentEditable
+            suppressContentEditableWarning
+            onInput={onInputChange}
             onKeyDown={handleKeyDown}
-            onPaste={handlePaste}
-            placeholder="Log food or workout..."
-            rows={1}
-            autoComplete="off"
-            autoCorrect="off"
-            autoCapitalize="off"
-            spellCheck={false}
-            style={{ flex: 1, background: 'none', border: 'none', outline: 'none', resize: 'none', fontSize: '13px', color: 'var(--text-primary)', fontFamily: DIN, lineHeight: '1.5', maxHeight: '120px', overflow: 'auto', textTransform: 'none', letterSpacing: '0.02em' }}
-            onInput={e => { e.target.style.height = 'auto'; e.target.style.height = Math.min(e.target.scrollHeight, 120) + 'px' }}
+            onPaste={handlePasteInInput}
+            data-placeholder="Log food or workout..."
+            style={{ flex: 1, background: 'none', border: 'none', outline: 'none', fontSize: '13px', color: 'var(--text-primary)', fontFamily: DIN, lineHeight: '1.5', maxHeight: '120px', overflow: 'auto', textTransform: 'none', letterSpacing: '0.02em', minHeight: '20px', wordBreak: 'break-word', whiteSpace: 'pre-wrap' }}
           />
           <div style={{ display: 'flex', gap: '6px', alignItems: 'center', flexShrink: 0 }}>
             <button onClick={toggleVoice} style={{ background: listening ? 'rgba(240,240,250,0.15)' : 'none', border: 'none', cursor: 'pointer', padding: '6px', borderRadius: '4px', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
@@ -399,19 +425,19 @@ export default function TodayPage() {
             </label>
             <button
               onClick={() => handleSend()}
-              disabled={!input.trim() || sending}
+              disabled={!hasInput || sending}
               style={{
-                background: input.trim() && !sending ? 'var(--text-primary)' : 'var(--ghost-bg)',
-                border: `1px solid ${input.trim() && !sending ? 'var(--text-primary)' : 'var(--ghost-border)'}`,
+                background: hasInput && !sending ? 'var(--text-primary)' : 'var(--ghost-bg)',
+                border: `1px solid ${hasInput && !sending ? 'var(--text-primary)' : 'var(--ghost-border)'}`,
                 borderRadius: '32px',
-                cursor: input.trim() && !sending ? 'pointer' : 'default',
+                cursor: hasInput && !sending ? 'pointer' : 'default',
                 padding: '5px 16px',
                 fontFamily: DIN,
                 fontWeight: 700,
                 fontSize: '9px',
                 letterSpacing: '1.17px',
                 textTransform: 'uppercase',
-                color: input.trim() && !sending ? '#000000' : 'var(--text-muted)',
+                color: hasInput && !sending ? '#000000' : 'var(--text-muted)',
                 transition: 'all 150ms',
               }}
             >
