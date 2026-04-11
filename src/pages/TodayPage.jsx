@@ -47,6 +47,15 @@ function IconStop() {
   )
 }
 
+function IconSend() {
+  return (
+    <svg width="18" height="18" viewBox="0 0 18 18" fill="none">
+      <line x1="2" y1="9" x2="16" y2="9" stroke="rgba(240,240,250,0.9)" strokeWidth="1.5" strokeLinecap="round"/>
+      <polyline points="10,3 16,9 10,15" fill="none" stroke="rgba(240,240,250,0.9)" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"/>
+    </svg>
+  )
+}
+
 function IconCamera({ size = 18 }) {
   const s = size
   return (
@@ -90,7 +99,7 @@ function MacroBar({ totals, targets }) {
     { key: 'carbs', label: 'CARB', val: totals.carbs, target: targets.daily_carbs },
   ]
   return (
-    <div style={{ borderBottom: '1px solid var(--border)', padding: '14px 20px 12px', flexShrink: 0 }}>
+    <div style={{ borderBottom: '1px solid var(--border)', padding: '14px 20px 12px' }}>
       <div style={{ display: 'grid', gridTemplateColumns: 'repeat(4,1fr)', gap: '8px', marginBottom: '12px' }}>
         {macros.map(({ key, label, val, target }) => (
           <div key={key} style={{ textAlign: 'center' }}>
@@ -478,8 +487,11 @@ export default function TodayPage() {
   if (!profile) return null
 
   return (
-    <div style={{ display: 'flex', flexDirection: 'column', height: 'calc(100dvh - 64px)', background: 'var(--bg-base)' }}>
-      <MacroBar totals={totals} targets={targets} />
+    <div style={{ display: 'flex', flexDirection: 'column', height: 'calc(100dvh - 64px)', background: 'var(--bg-base)', overflow: 'hidden' }}>
+      {/* Locked top — macro bar */}
+      <div style={{ flexShrink: 0 }}>
+        <MacroBar totals={totals} targets={targets} />
+      </div>
 
       {/* Chat */}
       <div style={{ flex: 1, overflowY: 'auto', paddingTop: '24px', paddingBottom: '8px' }}>
@@ -502,8 +514,8 @@ export default function TodayPage() {
         <div ref={bottomRef} />
       </div>
 
-      {/* Input bar — Claude style */}
-      <div style={{ background: 'var(--bg-base)', borderTop: '1px solid rgba(240,240,250,0.07)', padding: '10px 16px', paddingBottom: 'calc(10px + env(safe-area-inset-bottom))', flexShrink: 0 }}>
+      {/* Input bar */}
+      <div style={{ flexShrink: 0, background: 'var(--bg-base)', borderTop: '1px solid rgba(240,240,250,0.07)', padding: '10px 16px', paddingBottom: 'calc(10px + env(safe-area-inset-bottom))' }}>
         <div
           onDragOver={e => { e.preventDefault(); setDragOver(true) }}
           onDragLeave={() => setDragOver(false)}
@@ -512,10 +524,11 @@ export default function TodayPage() {
             background: dragOver ? 'rgba(240,240,250,0.1)' : 'rgba(240,240,250,0.06)',
             border: `1px solid ${dragOver ? 'rgba(240,240,250,0.35)' : 'rgba(240,240,250,0.12)'}`,
             borderRadius: '24px',
-            padding: '10px 12px 10px 14px',
+            padding: '0 12px',
             display: 'flex',
-            alignItems: 'flex-end',
-            gap: '8px',
+            alignItems: 'center',
+            gap: '4px',
+            minHeight: '48px',
             transition: 'all 150ms',
           }}
         >
@@ -528,33 +541,41 @@ export default function TodayPage() {
             onKeyDown={handleKeyDown}
             onPaste={handlePasteInInput}
             data-placeholder="Log food or workout..."
-            style={{ flex: 1, background: 'none', border: 'none', outline: 'none', fontSize: '16px', color: 'var(--text-primary)', fontFamily: DIN, lineHeight: '1.5', maxHeight: '140px', overflow: 'auto', textTransform: 'none', letterSpacing: '0.01em', minHeight: '24px', wordBreak: 'break-word', whiteSpace: 'pre-wrap', fontWeight: 400 }}
+            style={{
+              flex: 1,
+              background: 'none',
+              border: 'none',
+              outline: 'none',
+              fontSize: '15px',
+              color: 'var(--text-primary)',
+              fontFamily: DIN,
+              lineHeight: '1.5',
+              maxHeight: '140px',
+              overflow: 'auto',
+              textTransform: 'none',
+              letterSpacing: '0.01em',
+              wordBreak: 'break-word',
+              whiteSpace: 'pre-wrap',
+              fontWeight: 400,
+              padding: '12px 0',
+            }}
           />
 
-          {/* Camera button → opens picker sheet */}
+          {/* Camera — plain icon button */}
           <button
             onClick={() => setShowPicker(true)}
-            style={{ background: 'none', border: 'none', cursor: 'pointer', padding: '6px', display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0 }}
+            style={{ background: 'none', border: 'none', cursor: 'pointer', padding: '8px', display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0, opacity: 0.55 }}
           >
             <IconCamera />
           </button>
 
-          {/* Mic / Send button */}
+          {/* Mic / Send — plain icon button, same style as camera */}
           <button
             onClick={hasInput ? () => handleSend() : toggleVoice}
-            style={{
-              background: hasInput && !sending ? 'var(--text-primary)' : listening ? 'rgba(240,240,250,0.15)' : 'none',
-              border: hasInput && !sending ? 'none' : '1px solid rgba(240,240,250,0.2)',
-              borderRadius: '50%',
-              width: '34px', height: '34px',
-              cursor: 'pointer',
-              display: 'flex', alignItems: 'center', justifyContent: 'center',
-              flexShrink: 0,
-              transition: 'all 150ms',
-            }}
+            style={{ background: 'none', border: 'none', cursor: 'pointer', padding: '8px', display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0, opacity: hasInput || listening ? 1 : 0.55, transition: 'opacity 150ms' }}
           >
             {hasInput && !sending
-              ? <svg width="16" height="16" viewBox="0 0 16 16" fill="none"><path d="M3 8L7 12L13 4" stroke="#000" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/></svg>
+              ? <IconSend />
               : listening
                 ? <IconStop />
                 : <IconMic active={false} />
