@@ -487,7 +487,19 @@ export default function TodayPage() {
   if (!profile) return null
 
   return (
-    <div style={{ display: 'flex', flexDirection: 'column', height: 'calc(100dvh - 64px)', background: 'var(--bg-base)', overflow: 'hidden' }}>
+    <div style={{
+      position: 'fixed',
+      top: 0,
+      left: '50%',
+      transform: 'translateX(-50%)',
+      width: '100%',
+      maxWidth: '768px',
+      bottom: '64px',
+      display: 'flex',
+      flexDirection: 'column',
+      overflow: 'hidden',
+      background: 'var(--bg-base)',
+    }}>
       {/* Locked top — macro bar */}
       <div style={{ flexShrink: 0 }}>
         <MacroBar totals={totals} targets={targets} />
@@ -523,12 +535,12 @@ export default function TodayPage() {
           style={{
             background: dragOver ? 'rgba(240,240,250,0.1)' : 'rgba(240,240,250,0.06)',
             border: `1px solid ${dragOver ? 'rgba(240,240,250,0.35)' : 'rgba(240,240,250,0.12)'}`,
-            borderRadius: '24px',
-            padding: '0 12px',
+            borderRadius: '28px',
+            padding: '14px 14px 14px 18px',
             display: 'flex',
             alignItems: 'center',
-            gap: '4px',
-            minHeight: '48px',
+            gap: '8px',
+            minHeight: '60px',
             transition: 'all 150ms',
           }}
         >
@@ -546,7 +558,7 @@ export default function TodayPage() {
               background: 'none',
               border: 'none',
               outline: 'none',
-              fontSize: '15px',
+              fontSize: '16px',
               color: 'var(--text-primary)',
               fontFamily: DIN,
               lineHeight: '1.5',
@@ -557,7 +569,6 @@ export default function TodayPage() {
               wordBreak: 'break-word',
               whiteSpace: 'pre-wrap',
               fontWeight: 400,
-              padding: '12px 0',
             }}
           />
 
