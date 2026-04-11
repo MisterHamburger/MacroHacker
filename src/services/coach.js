@@ -1,6 +1,8 @@
 const API_KEY = import.meta.env.VITE_ANTHROPIC_API_KEY
 const API_URL = 'https://api.anthropic.com/v1/messages'
-const MODEL = 'claude-sonnet-4-5'
+const MODEL_FAST = 'claude-sonnet-4-5'   // opening + welcome — speed matters
+const MODEL_COACH = 'claude-opus-4-5'    // main coach — quality matters
+const THINKING_BUDGET = 8000             // tokens Claude can reason before replying
 
 function todayStr() {
   return new Date().toLocaleDateString('en-US', {
@@ -217,7 +219,7 @@ export async function sendWelcomeMessage({ messages, profile }) {
       'anthropic-dangerous-direct-browser-access': 'true',
     },
     body: JSON.stringify({
-      model: MODEL,
+      model: MODEL_FAST,
       max_tokens: 512,
       system,
       messages: messages.map(m => ({ role: m.role, content: m.content })),
@@ -246,7 +248,7 @@ export async function generateDailyOpening({ profile, totals, entries, recentWor
       'anthropic-dangerous-direct-browser-access': 'true',
     },
     body: JSON.stringify({
-      model: MODEL,
+      model: MODEL_FAST,
       max_tokens: 256,
       system,
       messages: [{ role: 'user', content: trigger }],
@@ -288,8 +290,9 @@ export async function sendMessage({ messages, profile, totals, entries, recentWo
       'anthropic-dangerous-direct-browser-access': 'true',
     },
     body: JSON.stringify({
-      model: MODEL,
-      max_tokens: 4096,
+      model: MODEL_COACH,
+      max_tokens: 8000,          // must be > thinking budget
+      thinking: { type: 'enabled', budget_tokens: THINKING_BUDGET },
       system,
       messages: (() => {
         // Map to Anthropic format
@@ -330,5 +333,8 @@ export async function sendMessage({ messages, profile, totals, entries, recentWo
   }
 
   const data = await res.json()
-  return data.content[0].text
+  // When extended thinking is on, response has [{type:"thinking",...}, {type:"text",...}]
+  // Always find the text block explicitly
+  const textBlock = data.content.find(b => b.type === 'text')
+  return textBlock?.text || data.content[0]?.text || ''
 }
