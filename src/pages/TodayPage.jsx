@@ -106,8 +106,8 @@ function MacroBar({ totals, targets }) {
             <div style={{ fontFamily: DIN_BOLD, fontSize: '42px', lineHeight: 1, letterSpacing: '-0.5px', color: over(val, target) ? 'var(--status-over)' : 'var(--text-primary)', fontWeight: 700 }}>
               {val}
             </div>
-            <div style={{ fontFamily: DIN, fontSize: '9px', letterSpacing: '1px', color: 'var(--text-muted)', textTransform: 'uppercase', marginTop: '5px' }}>
-              {label} <span style={{ color: 'var(--text-secondary)' }}>/ {target}</span>
+            <div style={{ fontFamily: DIN, fontSize: '11px', letterSpacing: '0.5px', color: 'rgba(240,240,250,0.5)', textTransform: 'uppercase', marginTop: '6px' }}>
+              {label} <span style={{ color: 'rgba(240,240,250,0.35)' }}>/ {target}</span>
             </div>
           </div>
         ))}
