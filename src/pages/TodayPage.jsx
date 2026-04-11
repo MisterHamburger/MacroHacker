@@ -47,7 +47,18 @@ function IconStop() {
   )
 }
 
-function IconCamera() {
+function IconCamera({ size = 18 }) {
+  const s = size
+  return (
+    <svg width={s} height={s} viewBox="0 0 18 18" fill="none">
+      <rect x="1.5" y="4.5" width="15" height="11" rx="2" stroke="rgba(240,240,250,0.55)" strokeWidth="1.3"/>
+      <circle cx="9" cy="10" r="2.8" stroke="rgba(240,240,250,0.55)" strokeWidth="1.3"/>
+      <path d="M6.5 4.5L7.5 2.5H10.5L11.5 4.5" stroke="rgba(240,240,250,0.55)" strokeWidth="1.3" strokeLinecap="round" strokeLinejoin="round"/>
+    </svg>
+  )
+}
+
+function IconCameraLarge() {
   return (
     <svg width="28" height="28" viewBox="0 0 28 28" fill="none">
       <rect x="3" y="7" width="22" height="16" rx="2.5" stroke="rgba(240,240,250,0.8)" strokeWidth="1.4"/>
@@ -79,14 +90,14 @@ function MacroBar({ totals, targets }) {
     { key: 'carbs', label: 'CARB', val: totals.carbs, target: targets.daily_carbs },
   ]
   return (
-    <div style={{ borderBottom: '1px solid var(--border)', padding: '12px 20px 10px', flexShrink: 0 }}>
-      <div style={{ display: 'grid', gridTemplateColumns: 'repeat(4,1fr)', gap: '8px', marginBottom: '10px' }}>
+    <div style={{ borderBottom: '1px solid var(--border)', padding: '14px 20px 12px', flexShrink: 0 }}>
+      <div style={{ display: 'grid', gridTemplateColumns: 'repeat(4,1fr)', gap: '8px', marginBottom: '12px' }}>
         {macros.map(({ key, label, val, target }) => (
           <div key={key} style={{ textAlign: 'center' }}>
-            <div style={{ fontFamily: DIN_BOLD, fontSize: '22px', lineHeight: 1, letterSpacing: '0.5px', color: over(val, target) ? 'var(--status-over)' : 'var(--text-primary)', fontWeight: 700 }}>
+            <div style={{ fontFamily: DIN_BOLD, fontSize: '42px', lineHeight: 1, letterSpacing: '-0.5px', color: over(val, target) ? 'var(--status-over)' : 'var(--text-primary)', fontWeight: 700 }}>
               {val}
             </div>
-            <div style={{ fontFamily: DIN, fontSize: '8px', letterSpacing: '1.17px', color: 'var(--text-muted)', textTransform: 'uppercase', marginTop: '3px' }}>
+            <div style={{ fontFamily: DIN, fontSize: '9px', letterSpacing: '1px', color: 'var(--text-muted)', textTransform: 'uppercase', marginTop: '5px' }}>
               {label} <span style={{ color: 'var(--text-secondary)' }}>/ {target}</span>
             </div>
           </div>
@@ -215,7 +226,7 @@ function MediaPicker({ onCamera, onPhotos, onClose }) {
         {/* Tiles */}
         <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '12px' }}>
           {[
-            { label: 'Camera', icon: <IconCamera />, action: onCamera },
+            { label: 'Camera', icon: <IconCameraLarge />, action: onCamera },
             { label: 'Photos', icon: <IconPhotos />, action: onPhotos },
           ].map(({ label, icon, action }) => (
             <button key={label} onClick={action} style={{
@@ -508,14 +519,6 @@ export default function TodayPage() {
             transition: 'all 150ms',
           }}
         >
-          {/* + button */}
-          <button
-            onClick={() => setShowPicker(true)}
-            style={{ background: 'none', border: 'none', cursor: 'pointer', padding: '2px', display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0, marginBottom: '1px' }}
-          >
-            <IconPlus />
-          </button>
-
           {/* Text input */}
           <div
             ref={inputRef}
@@ -524,11 +527,19 @@ export default function TodayPage() {
             onInput={onInputChange}
             onKeyDown={handleKeyDown}
             onPaste={handlePasteInInput}
-            data-placeholder="Reply to coach..."
+            data-placeholder="Log food or workout..."
             style={{ flex: 1, background: 'none', border: 'none', outline: 'none', fontSize: '16px', color: 'var(--text-primary)', fontFamily: DIN, lineHeight: '1.5', maxHeight: '140px', overflow: 'auto', textTransform: 'none', letterSpacing: '0.01em', minHeight: '24px', wordBreak: 'break-word', whiteSpace: 'pre-wrap', fontWeight: 400 }}
           />
 
-          {/* Voice button */}
+          {/* Camera button → opens picker sheet */}
+          <button
+            onClick={() => setShowPicker(true)}
+            style={{ background: 'none', border: 'none', cursor: 'pointer', padding: '6px', display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0 }}
+          >
+            <IconCamera />
+          </button>
+
+          {/* Mic / Send button */}
           <button
             onClick={hasInput ? () => handleSend() : toggleVoice}
             style={{
