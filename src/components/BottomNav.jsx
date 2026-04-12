@@ -25,18 +25,18 @@ export default function BottomNav() {
               display: 'flex',
               flexDirection: 'column',
               alignItems: 'center',
-              gap: '3px',
+              gap: '4px',
               textDecoration: 'none',
               color: isActive ? 'var(--text-primary)' : 'var(--text-muted)',
               fontFamily: isActive ? DIN_BOLD : DIN,
               fontWeight: isActive ? 700 : 400,
-              fontSize: '8px',
-              letterSpacing: '1.17px',
+              fontSize: '11px',
+              letterSpacing: '1.5px',
               textTransform: 'uppercase',
               transition: 'color 150ms',
             })}
           >
-            <span style={{ fontSize: '16px', lineHeight: 1 }}>{tab.icon}</span>
+            <span style={{ fontSize: '22px', lineHeight: 1 }}>{tab.icon}</span>
             <span>{tab.label}</span>
           </NavLink>
         ))}

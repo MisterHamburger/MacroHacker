@@ -264,7 +264,7 @@ export default function TodayPage() {
   const { profile, refresh: refreshProfile } = useProfile()
   const { log, entries, totals, refresh: refreshLog } = useDailyLog(TODAY)
   const [messages, setMessages] = useState([])
-  const [hasInput, setHasInput] = useState(false)
+  const [inputValue, setInputValue] = useState('')
   const [sending, setSending] = useState(false)
   const [recentWorkouts, setRecentWorkouts] = useState([])
   const [todayWorkout, setTodayWorkout] = useState(null)
@@ -272,33 +272,32 @@ export default function TodayPage() {
   const [showPicker, setShowPicker] = useState(false)
   const bottomRef = useRef(null)
   const recognitionRef = useRef(null)
-  const inputRef = useRef(null)
-  const cameraInputRef = useRef(null)
-  const photosInputRef = useRef(null)
+  const textareaRef = useRef(null)
 
   // Restore draft
   useEffect(() => {
     const draft = localStorage.getItem('draft_input')
-    if (draft && inputRef.current) {
-      inputRef.current.innerText = draft
-      setHasInput(true)
-    }
+    if (draft) setInputValue(draft)
   }, [])
 
-  function getInputText() {
-    return (inputRef.current?.innerText || '').replace(/\n+$/, '').trim()
-  }
+  // Auto-resize textarea
+  useEffect(() => {
+    const ta = textareaRef.current
+    if (ta) {
+      ta.style.height = 'auto'
+      ta.style.height = Math.min(ta.scrollHeight, 140) + 'px'
+    }
+  }, [inputValue])
 
   function clearInput() {
-    if (inputRef.current) inputRef.current.innerText = ''
-    setHasInput(false)
+    setInputValue('')
     localStorage.removeItem('draft_input')
   }
 
-  function onInputChange() {
-    const val = getInputText()
-    setHasInput(!!val)
-    localStorage.setItem('draft_input', inputRef.current?.innerText || '')
+  function onInputChange(e) {
+    const val = e.target.value
+    setInputValue(val)
+    localStorage.setItem('draft_input', val)
   }
 
   const targets = (() => {
@@ -351,7 +350,7 @@ export default function TodayPage() {
   }, [messages])
 
   const handleSend = useCallback(async (text) => {
-    const content = (text || getInputText()).trim()
+    const content = (text || inputValue).trim()
     if (!content || sending) return
     clearInput()
     setSending(true)
@@ -391,12 +390,25 @@ export default function TodayPage() {
     } finally {
       setSending(false)
     }
-  }, [sending, messages, profile, totals, entries, recentWorkouts, todayWorkout, log, user, refreshLog, refreshProfile])
+  }, [sending, messages, profile, totals, entries, recentWorkouts, todayWorkout, log, user, refreshLog, refreshProfile, inputValue])
+
+  function openFilePicker(capture) {
+    const input = document.createElement('input')
+    input.type = 'file'
+    input.accept = 'image/*'
+    if (capture) input.setAttribute('capture', 'environment')
+    input.style.display = 'none'
+    document.body.appendChild(input)
+    input.onchange = (e) => {
+      handlePhoto(e)
+      document.body.removeChild(input)
+    }
+    input.click()
+  }
 
   async function handlePhoto(e) {
     const file = e.target.files?.[0]
     if (!file || sending) return
-    if (e.target.value !== undefined) e.target.value = ''
     setShowPicker(false)
 
     const reader = new FileReader()
@@ -469,9 +481,6 @@ export default function TodayPage() {
       const file = item.getAsFile()
       if (file) { e.preventDefault(); handlePhoto({ target: { files: [file] } }); return }
     }
-    e.preventDefault()
-    const text = e.clipboardData.getData('text/plain')
-    document.execCommand('insertText', false, text)
   }
 
   const [dragOver, setDragOver] = useState(false)
@@ -528,82 +537,94 @@ export default function TodayPage() {
 
       {/* Input bar */}
       <div style={{ flexShrink: 0, background: 'var(--bg-base)', borderTop: '1px solid rgba(240,240,250,0.07)', padding: '10px 16px', paddingBottom: 'calc(10px + env(safe-area-inset-bottom))' }}>
-        <div
-          onDragOver={e => { e.preventDefault(); setDragOver(true) }}
-          onDragLeave={() => setDragOver(false)}
-          onDrop={handleDrop}
-          style={{
-            background: dragOver ? 'rgba(240,240,250,0.1)' : 'rgba(240,240,250,0.06)',
-            border: `1px solid ${dragOver ? 'rgba(240,240,250,0.35)' : 'rgba(240,240,250,0.12)'}`,
-            borderRadius: '28px',
-            padding: '14px 14px 14px 18px',
-            display: 'flex',
-            alignItems: 'center',
-            gap: '8px',
-            minHeight: '60px',
-            transition: 'all 150ms',
-          }}
+        <form
+          autoComplete="off"
+          onSubmit={e => { e.preventDefault(); handleSend() }}
+          style={{ margin: 0 }}
         >
-          {/* Text input */}
           <div
-            ref={inputRef}
-            contentEditable
-            suppressContentEditableWarning
-            onInput={onInputChange}
-            onKeyDown={handleKeyDown}
-            onPaste={handlePasteInInput}
-            data-placeholder="Log food or workout..."
+            onDragOver={e => { e.preventDefault(); setDragOver(true) }}
+            onDragLeave={() => setDragOver(false)}
+            onDrop={handleDrop}
             style={{
-              flex: 1,
-              background: 'none',
-              border: 'none',
-              outline: 'none',
-              fontSize: '16px',
-              color: 'var(--text-primary)',
-              fontFamily: DIN,
-              lineHeight: '1.5',
-              maxHeight: '140px',
-              overflow: 'auto',
-              textTransform: 'none',
-              letterSpacing: '0.01em',
-              wordBreak: 'break-word',
-              whiteSpace: 'pre-wrap',
-              fontWeight: 400,
+              background: dragOver ? 'rgba(240,240,250,0.1)' : 'rgba(240,240,250,0.06)',
+              border: `1px solid ${dragOver ? 'rgba(240,240,250,0.35)' : 'rgba(240,240,250,0.12)'}`,
+              borderRadius: '28px',
+              padding: '14px 14px 14px 18px',
+              display: 'flex',
+              alignItems: 'center',
+              gap: '8px',
+              minHeight: '60px',
+              transition: 'all 150ms',
             }}
-          />
-
-          {/* Camera — plain icon button */}
-          <button
-            onClick={() => setShowPicker(true)}
-            style={{ background: 'none', border: 'none', cursor: 'pointer', padding: '8px', display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0, opacity: 0.55 }}
           >
-            <IconCamera />
-          </button>
+            {/* Text input */}
+            <textarea
+              ref={textareaRef}
+              name="mh-chat"
+              autoComplete="off"
+              autoCorrect="off"
+              autoCapitalize="sentences"
+              spellCheck={false}
+              data-form-type="other"
+              data-lpignore="true"
+              rows={1}
+              value={inputValue}
+              onChange={onInputChange}
+              onKeyDown={handleKeyDown}
+              onPaste={handlePasteInInput}
+              placeholder="Log food or workout..."
+              style={{
+                flex: 1,
+                background: 'none',
+                border: 'none',
+                outline: 'none',
+                resize: 'none',
+                fontSize: '16px',
+                color: 'var(--text-primary)',
+                fontFamily: DIN,
+                lineHeight: '1.5',
+                maxHeight: '140px',
+                overflow: 'auto',
+                textTransform: 'none',
+                letterSpacing: '0.01em',
+                wordBreak: 'break-word',
+                fontWeight: 400,
+                padding: 0,
+              }}
+            />
 
-          {/* Mic / Send — plain icon button, same style as camera */}
-          <button
-            onClick={hasInput ? () => handleSend() : toggleVoice}
-            style={{ background: 'none', border: 'none', cursor: 'pointer', padding: '8px', display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0, opacity: hasInput || listening ? 1 : 0.55, transition: 'opacity 150ms' }}
-          >
-            {hasInput && !sending
-              ? <IconSend />
-              : listening
-                ? <IconStop />
-                : <IconMic active={false} />
-            }
-          </button>
-        </div>
+            {/* Camera — plain icon button */}
+            <button
+              type="button"
+              onClick={() => setShowPicker(true)}
+              style={{ background: 'none', border: 'none', cursor: 'pointer', padding: '8px', display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0, opacity: 0.55 }}
+            >
+              <IconCamera />
+            </button>
+
+            {/* Mic / Send — plain icon button, same style as camera */}
+            <button
+              type="button"
+              onClick={inputValue.trim() ? () => handleSend() : toggleVoice}
+              style={{ background: 'none', border: 'none', cursor: 'pointer', padding: '8px', display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0, opacity: inputValue.trim() || listening ? 1 : 0.55, transition: 'opacity 150ms' }}
+            >
+              {inputValue.trim() && !sending
+                ? <IconSend />
+                : listening
+                  ? <IconStop />
+                  : <IconMic active={false} />
+              }
+            </button>
+          </div>
+        </form>
       </div>
-
-      {/* Hidden file inputs for camera/photos */}
-      <input ref={cameraInputRef} type="file" accept="image/*" capture="environment" onChange={handlePhoto} style={{ display: 'none' }} />
-      <input ref={photosInputRef} type="file" accept="image/*" onChange={handlePhoto} style={{ display: 'none' }} />
 
       {/* Media picker sheet */}
       {showPicker && (
         <MediaPicker
-          onCamera={() => { setShowPicker(false); cameraInputRef.current?.click() }}
-          onPhotos={() => { setShowPicker(false); photosInputRef.current?.click() }}
+          onCamera={() => { setShowPicker(false); openFilePicker(true) }}
+          onPhotos={() => { setShowPicker(false); openFilePicker(false) }}
           onClose={() => setShowPicker(false)}
         />
       )}
