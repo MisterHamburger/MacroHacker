@@ -291,7 +291,7 @@ export async function sendMessage({ messages, profile, totals, entries, recentWo
     },
     body: JSON.stringify({
       model: MODEL_COACH,
-      max_tokens: 8000,          // must be > thinking budget
+      max_tokens: 16000,         // must be > thinking budget (8k thinking + 8k response)
       thinking: { type: 'enabled', budget_tokens: THINKING_BUDGET },
       system,
       messages: (() => {
